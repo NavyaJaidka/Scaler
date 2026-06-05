@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { backendPath } from "@/lib/backend";
 
 interface VoiceConfig {
   enabled: boolean;
@@ -12,8 +13,6 @@ interface VoiceCallWidgetProps {
   initialConfig?: VoiceConfig | null;
   onClose: () => void;
 }
-
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "/api/backend";
 
 export default function VoiceCallWidget({ initialConfig, onClose }: VoiceCallWidgetProps) {
   const [config, setConfig] = useState<VoiceConfig | null>(initialConfig ?? null);
@@ -28,13 +27,17 @@ export default function VoiceCallWidget({ initialConfig, onClose }: VoiceCallWid
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (initialConfig) return;
+    if (initialConfig) {
+      setConfig(initialConfig);
+      setLoadingConfig(false);
+      return;
+    }
 
     let cancelled = false;
     setLoadingConfig(true);
     setError("");
 
-    fetch(`${BACKEND}/voice/config`)
+    fetch(backendPath("/voice/config"))
       .then(r => r.json())
       .then(data => {
         if (!cancelled) setConfig(data);
@@ -51,13 +54,13 @@ export default function VoiceCallWidget({ initialConfig, onClose }: VoiceCallWid
     };
   }, [initialConfig]);
 
-  const requiredConfigReady = Boolean(
+  const requiredConfigReady = config ? Boolean(
     config?.configured?.vobiz_auth_id &&
     config?.configured?.vobiz_auth_token &&
     config?.configured?.vobiz_caller_id &&
     config?.configured?.vobiz_answer_url &&
     config?.configured?.vobiz_respond_url
-  );
+  ) : true;
 
   const startCall = async () => {
     if (!phone.trim()) {
@@ -70,7 +73,7 @@ export default function VoiceCallWidget({ initialConfig, onClose }: VoiceCallWid
     setError("");
 
     try {
-      const res = await fetch(`${BACKEND}/voice/call`, {
+      const res = await fetch(backendPath("/voice/call"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -111,9 +114,7 @@ export default function VoiceCallWidget({ initialConfig, onClose }: VoiceCallWid
         </button>
       </div>
 
-      {loadingConfig ? (
-        <p className="text-xs text-gray-600">Checking voice configuration...</p>
-      ) : !requiredConfigReady ? (
+      {!loadingConfig && !requiredConfigReady ? (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-3">
           <p className="text-sm font-semibold text-amber-900">Voice calling is not fully configured</p>
           <p className="mt-1 text-xs text-amber-800">
@@ -167,7 +168,7 @@ export default function VoiceCallWidget({ initialConfig, onClose }: VoiceCallWid
       <button
         type="button"
         onClick={startCall}
-        disabled={submitting || loadingConfig || !requiredConfigReady || !phone.trim()}
+        disabled={submitting || !phone.trim()}
         className="w-full rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {submitting ? "Starting call..." : "Start voice call"}

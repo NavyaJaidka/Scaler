@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import BookingWidget from "@/components/BookingWidget";
 import VoiceCallWidget from "@/components/VoiceCallWidget";
+import { backendPath } from "@/lib/backend";
 
 interface Message {
   role: "user" | "assistant";
@@ -66,18 +67,16 @@ export default function Home() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "/api/backend";
-
   // Check backend health on mount
   useEffect(() => {
-    fetch(`${BACKEND}/health`)
+    fetch(backendPath("/health"))
       .then(r => r.json())
       .then(d => setIsOnline(d.status === "ok"))
       .catch(() => setIsOnline(false));
-  }, [BACKEND]);
+  }, []);
 
   useEffect(() => {
-    fetch(`${BACKEND}/github/repos`)
+    fetch(backendPath("/github/repos"))
       .then(r => r.json())
       .then(d => {
         const fetchedRepos = d.repos || [];
@@ -86,14 +85,14 @@ export default function Home() {
       .catch(() => {
         setRepos([]);
       });
-  }, [BACKEND]);
+  }, []);
 
   useEffect(() => {
-    fetch(`${BACKEND}/voice/config`)
+    fetch(backendPath("/voice/config"))
       .then(r => r.json())
       .then(d => setVoiceConfig(d))
       .catch(() => setVoiceConfig(null));
-  }, [BACKEND]);
+  }, []);
 
   // Auto-scroll
   useEffect(() => {
@@ -124,7 +123,7 @@ export default function Home() {
     setShowBooking(false);
 
     try {
-      const res = await fetch(`${BACKEND}/chat`, {
+      const res = await fetch(backendPath("/chat"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -168,7 +167,7 @@ export default function Home() {
       setLoading(false);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [input, loading, messages, BACKEND]);
+  }, [input, loading, messages]);
 
   const startVoiceCall = () => {
     setShowProjects(false);

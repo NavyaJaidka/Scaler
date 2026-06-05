@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { backendPath } from "@/lib/backend";
 
 interface Slot {
   start: string;
@@ -19,8 +20,6 @@ export default function BookingWidget({ onClose }: BookingWidgetProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "/api/backend";
-
   const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
   const fetchSlots = async () => {
@@ -31,7 +30,7 @@ export default function BookingWidget({ onClose }: BookingWidgetProps) {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch(`${BACKEND}/slots`, { method: "POST" });
+      const res = await fetch(backendPath("/slots"), { method: "POST" });
       const body = await res.text();
       const data = body ? JSON.parse(body) : {};
       if (!res.ok) throw new Error(data.detail || body || "Server error");
@@ -56,7 +55,7 @@ export default function BookingWidget({ onClose }: BookingWidgetProps) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${BACKEND}/book`, {
+      const res = await fetch(backendPath("/book"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
