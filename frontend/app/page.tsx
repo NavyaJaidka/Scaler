@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
 import BookingWidget from "@/components/BookingWidget";
+import VoiceCallWidget from "@/components/VoiceCallWidget";
 
 interface Message {
   role: "user" | "assistant";
@@ -26,7 +27,8 @@ interface GitHubRepo {
 
 interface VoiceConfig {
   enabled: boolean;
-  phone_number: string;
+  provider?: string;
+  stream_url?: string;
   configured?: Record<string, boolean>;
 }
 
@@ -55,6 +57,7 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
+  const [showVoiceCall, setShowVoiceCall] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
   const [voiceConfig, setVoiceConfig] = useState<VoiceConfig | null>(null);
@@ -95,7 +98,7 @@ export default function Home() {
   // Auto-scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading, showBooking]);
+  }, [messages, loading, showBooking, showVoiceCall]);
 
   const send = useCallback(async (query?: string) => {
     const text = (query ?? input).trim();
@@ -168,28 +171,10 @@ export default function Home() {
   }, [input, loading, messages, BACKEND]);
 
   const startVoiceCall = () => {
-    const phoneNumber = voiceConfig?.phone_number?.trim();
-    if (phoneNumber) {
-      window.location.href = `tel:${phoneNumber.replace(/[^\d+]/g, "")}`;
-      return;
-    }
-
     setShowProjects(false);
     setExpandedRepo(null);
-    setMessages(current => [
-      ...current,
-      {
-        role: "user",
-        content: "Call AI representative",
-        timestamp: Date.now(),
-      },
-      {
-        role: "assistant",
-        content:
-          "Voice calling is almost ready, but the public Vapi phone number is not configured yet. Add VAPI_PHONE_NUMBER to your env after you connect the Vapi number, then restart the backend.",
-        timestamp: Date.now(),
-      },
-    ]);
+    setShowBooking(false);
+    setShowVoiceCall(true);
   };
 
   const handleSuggestedQuestion = (question: string) => {
@@ -432,6 +417,16 @@ export default function Home() {
         {showBooking && (
           <div className="border-t border-blue-100 bg-gradient-to-b from-blue-50 to-white px-4 pt-3 pb-2 flex-shrink-0">
             <BookingWidget onClose={() => setShowBooking(false)} />
+          </div>
+        )}
+
+        {/* Voice call widget */}
+        {showVoiceCall && (
+          <div className="border-t border-indigo-100 bg-gradient-to-b from-indigo-50 to-white px-4 pt-3 pb-2 flex-shrink-0">
+            <VoiceCallWidget
+              initialConfig={voiceConfig}
+              onClose={() => setShowVoiceCall(false)}
+            />
           </div>
         )}
 

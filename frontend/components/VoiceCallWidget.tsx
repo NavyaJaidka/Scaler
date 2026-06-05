@@ -1,190 +1,192 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://127.0.0.1:8000";
+interface VoiceConfig {
+  enabled: boolean;
+  provider?: string;
+  stream_url?: string;
+  configured?: Record<string, boolean>;
+}
 
-export default function VoiceCallWidget({ onClose }: { onClose: () => void }) {
+interface VoiceCallWidgetProps {
+  initialConfig?: VoiceConfig | null;
+  onClose: () => void;
+}
+
+const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "/api/backend";
+
+export default function VoiceCallWidget({ initialConfig, onClose }: VoiceCallWidgetProps) {
+  const [config, setConfig] = useState<VoiceConfig | null>(initialConfig ?? null);
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [message, setMessage] = useState("Hi, I'm calling on behalf of [YOUR NAME] to discuss their background and interview availability.");
+  const [message, setMessage] = useState(
+    "Hi there! I'm the AI representative for [YOUR NAME]. I can answer questions about their background, projects, and interview availability."
+  );
+  const [loadingConfig, setLoadingConfig] = useState(!initialConfig);
+  const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState("");
-  const [healthStatus, setHealthStatus] = useState("");
-  const [isWebhookHealthy, setIsWebhookHealthy] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [healthLoading, setHealthLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const postJson = async (url: string, body: object) => {
-    if (typeof fetch === "function") {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || `HTTP ${res.status}`);
-      }
-      return data;
-    }
-
-    return await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", url);
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.onload = () => {
-        try {
-          const data = JSON.parse(xhr.responseText || "{}");
-          if (xhr.status >= 200 && xhr.status < 300) {
-            resolve(data);
-          } else {
-            reject(new Error(data?.error || `HTTP ${xhr.status}`));
-          }
-        } catch (error) {
-          reject(error);
-        }
-      };
-      xhr.onerror = () => reject(new Error("Network error while sending the request."));
-      xhr.send(JSON.stringify(body));
-    });
-  };
-
-  const getJson = async (url: string) => {
-    if (typeof fetch === "function") {
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || `HTTP ${res.status}`);
-      }
-      return data;
-    }
-
-    return await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("GET", url);
-      xhr.onload = () => {
-        try {
-          const data = JSON.parse(xhr.responseText || "{}");
-          if (xhr.status >= 200 && xhr.status < 300) {
-            resolve(data);
-          } else {
-            reject(new Error(data?.error || `HTTP ${xhr.status}`));
-          }
-        } catch (error) {
-          reject(error);
-        }
-      };
-      xhr.onerror = () => reject(new Error("Network error while checking health."));
-      xhr.send();
-    });
-  };
-
-  const checkHealth = async () => {
-    setHealthLoading(true);
-    setError("");
-    setStatus("");
-    setHealthStatus("");
-    try {
-      const data = await getJson(`${backendUrl}/webhook/vapi/health`);
-      setHealthStatus(data.message || "Webhook health check passed.");
-      setIsWebhookHealthy(true);
-      return true;
-    } catch (err: any) {
-      console.error("Health check error:", err);
-      setHealthStatus("");
-      setIsWebhookHealthy(false);
-      setError(err?.message || "Health check failed. Make sure the webhook service is running.");
-      return false;
-    } finally {
-      setHealthLoading(false);
-    }
-  };
-
   useEffect(() => {
-    checkHealth();
-  }, []);
+    if (initialConfig) return;
+
+    let cancelled = false;
+    setLoadingConfig(true);
+    setError("");
+
+    fetch(`${BACKEND}/voice/config`)
+      .then(r => r.json())
+      .then(data => {
+        if (!cancelled) setConfig(data);
+      })
+      .catch(() => {
+        if (!cancelled) setError("Voice configuration could not be loaded.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingConfig(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialConfig]);
+
+  const requiredConfigReady = Boolean(
+    config?.configured?.vobiz_auth_id &&
+    config?.configured?.vobiz_auth_token &&
+    config?.configured?.vobiz_caller_id &&
+    config?.configured?.vobiz_answer_url &&
+    config?.configured?.vobiz_respond_url
+  );
 
   const startCall = async () => {
-    if (!isWebhookHealthy) {
-      const healthy = await checkHealth();
-      if (!healthy) {
-        setError("Webhook is not healthy. Please fix the webhook before starting a call.");
-        return;
-      }
-    }
     if (!phone.trim()) {
-      setError("Please enter your phone number.");
+      setError("Please enter your phone number with country code, for example +919876543210.");
       return;
     }
-    setLoading(true);
-    setError("");
+
+    setSubmitting(true);
     setStatus("");
+    setError("");
+
     try {
-      const data = await postJson(`${backendUrl}/voice/call`, {
-        phone: phone.trim(),
-        message: message.trim()
+      const res = await fetch(`${BACKEND}/voice/call`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          phone: phone.trim(),
+          message: message.trim(),
+        }),
       });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || data.error || `HTTP ${res.status}`);
+      }
       setStatus(data.message || "Call started. You should receive a phone call shortly.");
       setPhone("");
-    } catch (err: any) {
-      console.error("Voice call error:", err);
-      setError(err?.message || "Unable to reach the voice service. Please try again.");
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : "Unable to start the voice call.";
+      setError(detail);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold text-blue-800">📞 Request a voice call</p>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xs">✕</button>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-indigo-900">Request a voice call</p>
+          <p className="text-xs text-indigo-700 mt-0.5">
+            Enter your number and Vobiz will call you with the AI representative.
+          </p>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-gray-400 hover:text-gray-600 text-xs px-2 py-1"
+          aria-label="Close voice call widget"
+        >
+          x
+        </button>
       </div>
+
+      {loadingConfig ? (
+        <p className="text-xs text-gray-600">Checking voice configuration...</p>
+      ) : !requiredConfigReady ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-3">
+          <p className="text-sm font-semibold text-amber-900">Voice calling is not fully configured</p>
+          <p className="mt-1 text-xs text-amber-800">
+            Set <span className="font-mono">VOBIZ_AUTH_ID</span>,
+            <span className="font-mono"> VOBIZ_AUTH_TOKEN</span>,
+            <span className="font-mono"> VOBIZ_CALLER_ID</span>, and
+            <span className="font-mono"> PUBLIC_BACKEND_URL</span>.
+          </p>
+        </div>
+      ) : null}
+
+      <div className="space-y-2">
+        <label className="block text-xs font-medium text-gray-700">Your name</label>
+        <input
+          value={name}
+          onChange={e => setName(e.target.value)}
+          placeholder="Recruiter name"
+          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          disabled={submitting}
+        />
+      </div>
+
       <div className="space-y-2">
         <label className="block text-xs font-medium text-gray-700">Phone number</label>
         <input
           value={phone}
           onChange={e => setPhone(e.target.value)}
           onKeyDown={e => {
-            if (e.key === "Enter" && !loading && phone.trim()) {
-              startCall();
-            }
+            if (e.key === "Enter" && !submitting) startCall();
           }}
-          placeholder="+1234567890"
-          className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          disabled={loading}
+          placeholder="+919876543210"
+          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          disabled={submitting}
         />
       </div>
+
       <div className="space-y-2">
-        <label className="block text-xs font-medium text-gray-700">Call message</label>
+        <label className="block text-xs font-medium text-gray-700">First message</label>
         <textarea
           value={message}
           onChange={e => setMessage(e.target.value)}
           rows={3}
-          className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          disabled={loading}
+          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          disabled={submitting}
         />
       </div>
-      {error && <p className="text-xs text-red-500">{error}</p>}
-      {healthStatus && <p className="text-xs text-emerald-700">{healthStatus}</p>}
-      {status && <p className="text-xs text-green-700">{status}</p>}
-      <div className="flex flex-col gap-2">
-        <button
-          type="button"
-          onClick={checkHealth}
-          disabled={healthLoading}
-          className="w-full bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-800 px-4 py-2 rounded-xl text-sm font-medium border border-slate-200"
-        >
-          {healthLoading ? "Checking webhook health..." : "Check webhook health"}
-        </button>
-        <button
-          type="button"
-          onClick={startCall}
-          disabled={loading || !phone.trim() || !isWebhookHealthy}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-4 py-2 rounded-xl text-sm font-medium"
-        >
-          {loading ? "Starting call..." : "Start voice call"}
-        </button>
-      </div>
+
+      {error && <p className="text-xs text-red-600">{error}</p>}
+      {status && <p className="text-xs text-emerald-700">{status}</p>}
+
+      <button
+        type="button"
+        onClick={startCall}
+        disabled={submitting || loadingConfig || !requiredConfigReady || !phone.trim()}
+        className="w-full rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {submitting ? "Starting call..." : "Start voice call"}
+      </button>
+
+      {config?.configured && (
+        <div className="grid grid-cols-2 gap-1.5">
+          {Object.entries(config.configured).map(([key, value]) => (
+            <span
+              key={key}
+              className={`rounded-full px-2 py-1 text-[10px] font-medium ${
+                value ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-500"
+              }`}
+            >
+              {key.replaceAll("_", " ")}: {value ? "set" : "missing"}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -5,7 +5,11 @@ Routes:
   POST /chat              → RAG-grounded chat via Gemini 1.5 Flash
   POST /slots             → Fetch live Cal.com availability
   POST /book              → Book a confirmed meeting slot
-  POST /vapi/webhook      → Vapi voice agent webhook
+  POST /voice/call        -> Start Vobiz outbound voice call
+  POST /vobiz/answer      -> Vobiz XML answer URL
+  POST /vobiz/respond     -> Vobiz speech turn handler
+  POST /vobiz/status      -> Vobiz call status callback
+  WS   /vobiz/media       -> Vobiz media WebSocket
   GET  /health            → System health + index stats
   GET  /                  → API info
 """
@@ -19,17 +23,22 @@ from pathlib import Path
 from typing import Optional
 
 import google.generativeai as genai
-import requests
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from config import require_env
 from rag.prompt_builder import build_prompt, PERSONA_IDENTITY, is_injection_attempt
 from rag.retriever import retrieve, retrieve_with_sources, check_index_health
 from voice.calendar_tool import get_availability, book_slot, format_slots_for_chat
-from voice.vapi_handler import handle_vapi_webhook
+from voice.vobiz_handler import (
+    answer_xml,
+    handle_vobiz_media,
+    log_status_callback,
+    response_xml,
+    start_outbound_call,
+    vobiz_config,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
 logger = logging.getLogger(__name__)
@@ -82,6 +91,12 @@ class BookRequest(BaseModel):
     notes: Optional[str] = ""
 
 
+class VoiceCallRequest(BaseModel):
+    phone: str
+    name: Optional[str] = ""
+    message: Optional[str] = ""
+
+
 DIRECT_ANSWERS = {
     "why should scaler hire you": (
         "I'm a pre-final year student who has already shipped a production-grade multi-agent RAG system "
@@ -101,31 +116,6 @@ DIRECT_ANSWERS = {
 
 def _env_present(name: str) -> bool:
     return bool(os.environ.get(name, "").strip())
-
-
-def _fetch_vapi_phone_number() -> str:
-    api_key = os.environ.get("VAPI_API_KEY", "").strip()
-    phone_number_id = os.environ.get("VAPI_PHONE_NUMBER_ID", "").strip()
-    if not api_key or not phone_number_id:
-        return ""
-
-    try:
-        response = requests.get(
-            f"https://api.vapi.ai/phone-number/{phone_number_id}",
-            headers={"Authorization": f"Bearer {api_key}"},
-            timeout=8,
-        )
-        response.raise_for_status()
-        data = response.json()
-    except Exception as exc:
-        logger.warning("Could not fetch Vapi phone number: %s", exc)
-        return ""
-
-    return (
-        data.get("number", "")
-        or data.get("phoneNumber", "")
-        or data.get("callerId", "")
-    ).strip()
 
 
 def _load_github_repos() -> list[dict]:
@@ -197,6 +187,77 @@ def _tech_stack_from_repos(repos: list[dict]) -> list[str]:
     return found
 
 
+def _generate_persona_answer(message: str) -> dict:
+    """Generate a RAG-grounded answer for chat or voice."""
+    normalized_message = re.sub(r"[^\w\s]", "", message.lower()).strip()
+
+    for question, answer in DIRECT_ANSWERS.items():
+        if question in normalized_message:
+            return {
+                "answer": answer,
+                "sources": ["resume", "github"],
+                "booking_available": False,
+                "retrieval": {
+                    "total_retrieved": 0,
+                    "avg_score": 1,
+                    "mode": "direct",
+                    "error": None,
+                },
+            }
+
+    if is_injection_attempt(message):
+        return {
+            "answer": "I'm here to discuss [YOUR NAME]'s background - happy to answer genuine questions!",
+            "sources": [],
+            "booking_available": False,
+            "flagged": True,
+            "retrieval": {
+                "total_retrieved": 0,
+                "avg_score": 0,
+                "mode": "safety",
+                "error": None,
+            },
+        }
+
+    retrieval_error = None
+    try:
+        retrieval = retrieve_with_sources(message, top_k=10)
+        chunks = retrieval["chunks"]
+        retrieval_error = retrieval.get("error")
+    except Exception as e:
+        logger.exception("Retrieval error")
+        retrieval_error = str(e)
+        retrieval = {
+            "chunks": [],
+            "sources": [],
+            "total_retrieved": 0,
+            "avg_score": 0,
+            "mode": "error",
+        }
+        chunks = []
+
+    prompt = build_prompt(message, chunks)
+    try:
+        chat_session = gemini_model.start_chat(history=[])
+        response = chat_session.send_message(prompt)
+        answer = response.text
+    except Exception as e:
+        logger.error(f"Gemini error: {e}")
+        raise HTTPException(status_code=502, detail=f"LLM error: {str(e)}")
+
+    return {
+        "answer": answer,
+        "sources": retrieval["sources"],
+        "booking_available": False,
+        "retrieval": {
+            "total_retrieved": retrieval["total_retrieved"],
+            "avg_score": retrieval["avg_score"],
+            "mode": retrieval.get("mode", "unknown"),
+            "error": retrieval_error,
+        },
+    }
+
+
 # ─── Routes ───────────────────────────────────────────────────────────────────
 
 @app.get("/")
@@ -204,7 +265,7 @@ async def root():
     return {
         "name": "AI Persona API",
         "version": "1.0.0",
-        "endpoints": ["/chat", "/slots", "/book", "/github/repos", "/voice/config", "/vapi/webhook", "/health"],
+        "endpoints": ["/chat", "/slots", "/book", "/github/repos", "/voice/config", "/voice/call", "/vobiz/answer", "/vobiz/respond", "/vobiz/status", "/vobiz/media", "/health"],
     }
 
 
@@ -337,26 +398,23 @@ async def github_repos():
 @app.get("/voice/config")
 async def voice_config():
     """Return safe voice-call configuration status for the frontend."""
-    phone_number = (
-        os.environ.get("VAPI_PHONE_NUMBER", "").strip()
-        or os.environ.get("VAPI_PUBLIC_PHONE_NUMBER", "").strip()
-        or _fetch_vapi_phone_number()
+    config = vobiz_config()
+    config["configured"]["calcom_api_key"] = _env_present("CALCOM_API_KEY")
+    config["configured"]["calcom_event_type_id"] = _env_present("CALCOM_EVENT_TYPE_ID")
+    return config
+
+
+@app.post("/voice/call")
+async def voice_call(req: VoiceCallRequest):
+    """Start an outbound Vobiz call to the submitted phone number."""
+    result = start_outbound_call(
+        phone_number=req.phone,
+        name=req.name or "",
+        message=req.message or "",
     )
-    return {
-        "enabled": bool(phone_number),
-        "phone_number": phone_number,
-        "webhook_path": "/vapi/webhook",
-        "configured": {
-            "vapi_api_key": _env_present("VAPI_API_KEY"),
-            "vapi_phone_number_id": _env_present("VAPI_PHONE_NUMBER_ID"),
-            "vapi_phone_number": bool(phone_number),
-            "elevenlabs_api_key": _env_present("ELEVENLABS_API_KEY"),
-            "elevenlabs_voice_id": _env_present("ELEVENLABS_VOICE_ID"),
-            "gemini_api_key": _env_present("GEMINI_API_KEY"),
-            "calcom_api_key": _env_present("CALCOM_API_KEY"),
-            "calcom_event_type_id": _env_present("CALCOM_EVENT_TYPE_ID"),
-        },
-    }
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("error", "Unable to start voice call."))
+    return result
 
 
 @app.post("/book")
@@ -374,16 +432,76 @@ async def book(req: BookRequest):
     return result
 
 
-@app.post("/vapi/webhook")
-async def vapi_webhook(request: Request):
-    """Vapi voice agent webhook — handles all event types."""
+@app.api_route("/vobiz/answer", methods=["GET", "POST"])
+async def vobiz_answer(request: Request):
+    """Return Vobiz XML when an outbound call is answered."""
+    first_message = ""
+    content_type = request.headers.get("content-type", "")
     try:
-        body = await request.json()
+        if "application/json" in content_type:
+            payload = await request.json()
+        else:
+            form = await request.form()
+            payload = dict(form)
+        custom_data = payload.get("custom_data") or payload.get("CustomField") or ""
+        if custom_data:
+            parsed = json.loads(custom_data)
+            first_message = parsed.get("first_message", "")
     except Exception:
-        raise HTTPException(status_code=400, detail="Invalid JSON body")
+        first_message = ""
+    return answer_xml(first_message=first_message)
 
-    result = await handle_vapi_webhook(body)
-    return JSONResponse(content=result)
+
+@app.api_route("/vobiz/respond", methods=["GET", "POST"])
+async def vobiz_respond(request: Request):
+    """Receive Vobiz speech transcription, answer with Gemini/RAG, and keep listening."""
+    content_type = request.headers.get("content-type", "")
+    if "application/json" in content_type:
+        payload = await request.json()
+    elif request.method == "GET":
+        payload = dict(request.query_params)
+    else:
+        form = await request.form()
+        payload = dict(form)
+
+    speech = (
+        payload.get("Speech")
+        or payload.get("speech")
+        or payload.get("StableSpeech")
+        or payload.get("UnstableSpeech")
+        or ""
+    ).strip()
+
+    if not speech:
+        return response_xml("I did not catch that. Could you say it once more?")
+
+    if re.search(r"\b(bye|goodbye|hang up|end call|that is all|that's all)\b", speech, re.I):
+        return response_xml("Thanks for calling. Have a great day.", hangup=True)
+
+    result = _generate_persona_answer(speech)
+    answer = result["answer"]
+    # Phone calls need short turns; Vobiz will gather the next question after speaking.
+    if len(answer) > 900:
+        answer = answer[:880].rsplit(" ", 1)[0] + "."
+    return response_xml(answer)
+
+
+@app.post("/vobiz/status")
+async def vobiz_status(request: Request):
+    """Vobiz call status callback."""
+    content_type = request.headers.get("content-type", "")
+    if "application/json" in content_type:
+        payload = await request.json()
+    else:
+        form = await request.form()
+        payload = dict(form)
+    return log_status_callback(payload)
+
+
+@app.websocket("/vobiz/media")
+async def vobiz_media(websocket: WebSocket):
+    """Vobiz bidirectional media WebSocket."""
+    await handle_vobiz_media(websocket)
 
 
 @app.get("/health")

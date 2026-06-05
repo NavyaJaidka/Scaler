@@ -1,1 +1,1 @@
-# Voice module — Vapi webhook handler + Cal.com booking
+# Voice module - Vobiz outbound calls + Cal.com booking
