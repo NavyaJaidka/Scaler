@@ -14,6 +14,8 @@ COPY . .
 RUN mkdir -p logs data
 
 # ✅ Run this on every build/deploy
+ARG GITHUB_USERNAME
+ENV GITHUB_USERNAME=$GITHUB_USERNAME
 RUN python scripts/fetch_github.py
 
 EXPOSE 8000
