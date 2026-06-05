@@ -117,7 +117,7 @@ def main(username: str, token: str = ""):
         time.sleep(0.3)
 
     # Write output
-    data_dir = Path(__file__).parent.parent / "data"
+    data_dir = Path(__file__).parent / "data"
     data_dir.mkdir(exist_ok=True)
     output_path = data_dir / "github_repos.json"
     output_path.write_text(json.dumps(output, indent=2, ensure_ascii=False), encoding="utf-8")

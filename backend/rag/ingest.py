@@ -253,7 +253,7 @@ def main():
 
     # Change to project root so relative paths work
     script_dir = Path(__file__).parent
-    project_root = script_dir.parent.parent
+    project_root = script_dir.parent
     os.chdir(project_root)
 
     index = get_or_create_index()
