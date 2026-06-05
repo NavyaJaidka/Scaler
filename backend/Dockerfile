@@ -17,7 +17,7 @@ COPY . .
 
 # Create logs directory
 RUN mkdir -p logs data
-
+RUN python scripts/fetch_github.py
 # Expose port
 EXPOSE 8000
 
