@@ -15,7 +15,8 @@ RUN mkdir -p logs data
 
 # ✅ Pass GitHub username at build time
 ARG GITHUB_USERNAME=NavyaJaidka
-
+ARG GITHUB_TOKEN
+ENV GITHUB_TOKEN=$GITHUB_TOKEN
 RUN python scripts/fetch_github.py
 
 EXPOSE 8000
