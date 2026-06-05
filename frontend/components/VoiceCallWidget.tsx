@@ -173,20 +173,6 @@ export default function VoiceCallWidget({ initialConfig, onClose }: VoiceCallWid
         {submitting ? "Starting call..." : "Start voice call"}
       </button>
 
-      {config?.configured && (
-        <div className="grid grid-cols-2 gap-1.5">
-          {Object.entries(config.configured).map(([key, value]) => (
-            <span
-              key={key}
-              className={`rounded-full px-2 py-1 text-[10px] font-medium ${
-                value ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-500"
-              }`}
-            >
-              {key.replaceAll("_", " ")}: {value ? "set" : "missing"}
-            </span>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

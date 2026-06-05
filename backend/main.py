@@ -443,6 +443,7 @@ async def vobiz_answer(request: Request):
         else:
             form = await request.form()
             payload = dict(form)
+        logger.info("Vobiz answer payload keys: %s", sorted(payload.keys()))
         custom_data = payload.get("custom_data") or payload.get("CustomField") or ""
         if custom_data:
             parsed = json.loads(custom_data)
@@ -463,6 +464,7 @@ async def vobiz_respond(request: Request):
     else:
         form = await request.form()
         payload = dict(form)
+    logger.info("Vobiz respond payload keys: %s", sorted(payload.keys()))
 
     speech = (
         payload.get("Speech")
@@ -471,6 +473,7 @@ async def vobiz_respond(request: Request):
         or payload.get("UnstableSpeech")
         or ""
     ).strip()
+    logger.info("Vobiz speech received: %r", speech[:120])
 
     if not speech:
         return response_xml("I did not catch that. Could you say it once more?")
