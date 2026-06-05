@@ -1,4 +1,4 @@
-# AI Persona — [YOUR NAME]
+# AI Persona — Navya Jaidka
 
 > **Scaler AI Engineer Internship Screening Assignment**
 > An end-to-end AI persona system you can call, chat with, and use to book a real interview — with no human in the loop.
@@ -258,7 +258,7 @@ Edit `backend/rag/prompt_builder.py`:
 - The system will then use RAG to answer questions accurately
 
 Edit `frontend/app/page.tsx`:
-- Replace `[YOUR NAME]` in the initial message and header
+- Replace `Navya Jaidka` in the initial message and header
 
 ---
 

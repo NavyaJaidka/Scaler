@@ -189,8 +189,8 @@ def _voice_xml(text: str, include_gather: bool = True) -> Response:
     action = html.escape(_respond_url())
     if include_gather and action:
         body = f"""
-    <Gather inputType="speech" action="{action}" method="POST" speechModel="phone_call" language="en-US" executionTimeout="30" speechEndTimeout="3" redirect="true">
-        <Speak voice="WOMAN" language="en-US">{safe_text}</Speak>
+    <Gather inputType="dtmf speech" action="{action}" method="POST" speechModel="phone_call" language="en-US" executionTimeout="30" speechEndTimeout="3" numDigits="1" finishOnKey="#" interimSpeechResultsCallback="{action}" interimSpeechResultsCallbackMethod="POST">
+        <Speak voice="WOMAN" language="en-US">{safe_text} You can speak after the beep, or press 1 to test the response.</Speak>
     </Gather>
     <Speak voice="WOMAN" language="en-US">I did not hear anything. Please try again.</Speak>
     <Redirect method="POST">{action}</Redirect>"""

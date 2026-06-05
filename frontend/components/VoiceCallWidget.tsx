@@ -19,7 +19,7 @@ export default function VoiceCallWidget({ initialConfig, onClose }: VoiceCallWid
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState(
-    "Hi there! I'm the AI representative for [YOUR NAME]. I can answer questions about their background, projects, and interview availability."
+    "Hi there! I'm the AI representative for Navya Jaidka. I can answer questions about their background, projects, and interview availability."
   );
   const [loadingConfig, setLoadingConfig] = useState(!initialConfig);
   const [submitting, setSubmitting] = useState(false);

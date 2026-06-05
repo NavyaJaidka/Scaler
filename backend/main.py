@@ -473,7 +473,12 @@ async def vobiz_respond(request: Request):
         or payload.get("UnstableSpeech")
         or ""
     ).strip()
+    digits = (payload.get("Digits") or payload.get("digits") or "").strip()
     logger.info("Vobiz speech received: %r", speech[:120])
+
+    if digits:
+        logger.info("Vobiz digits received: %r", digits)
+        return response_xml("I received your keypad input. Now please ask your question by speaking after the prompt.")
 
     if not speech:
         return response_xml("I did not catch that. Could you say it once more?")

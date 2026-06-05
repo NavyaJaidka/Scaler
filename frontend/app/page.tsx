@@ -46,7 +46,7 @@ const SUGGESTED_QUESTIONS = [
 const INITIAL_MESSAGE: Message = {
   role: "assistant",
   content:
-    "Hi! I'm the AI representative for [YOUR NAME] 👋\n\n" +
+    "Hi! I'm the AI representative for Navya Jaidka 👋\n\n" +
     "I can tell you about their background, skills, GitHub projects, and work experience — " +
     "all grounded in their real resume and repos. I can also book a call with them directly.\n\n" +
     "What would you like to know?",
@@ -239,7 +239,7 @@ export default function Home() {
 
             {/* Identity */}
             <div className="flex-1 min-w-0">
-              <h1 className="text-base font-bold leading-tight">[YOUR NAME]</h1>
+              <h1 className="text-base font-bold leading-tight">Navya Jaidka</h1>
               <p className="text-[11px] opacity-70 leading-tight mt-0.5">
                 AI Representative · RAG-grounded · Gemini 2.5 Flash
               </p>
