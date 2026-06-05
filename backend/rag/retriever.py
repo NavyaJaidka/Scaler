@@ -25,7 +25,7 @@ INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME", "ai-persona")
 NAMESPACE = "persona"
 EMBEDDING_MODEL = "text-embedding-3-small"
 MIN_SCORE = 0.30  # Discard low-relevance matches
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 # Lazy index connection
 _index = None
@@ -68,7 +68,7 @@ def _tokenize(text: str) -> set[str]:
 def _load_local_corpus() -> list[dict]:
     corpus = []
 
-    github_path = PROJECT_ROOT / "data" / "github_repos.json"
+    github_path = BACKEND_DIR / "data" / "github_repos.json"
     if github_path.exists():
         try:
             import json
@@ -96,7 +96,7 @@ def _load_local_corpus() -> list[dict]:
         except Exception:
             pass
 
-    resume_path = PROJECT_ROOT / "data" / "resume.pdf"
+    resume_path = BACKEND_DIR / "data" / "resume.pdf"
     if resume_path.exists():
         try:
             import fitz
@@ -218,6 +218,10 @@ def retrieve_with_sources(query: str, top_k: int = 8) -> dict:
     try:
         chunks = retrieve(query, top_k=top_k)
         mode = "pinecone"
+        if not chunks:
+            chunks = retrieve_local(query, top_k=top_k)
+            mode = "local_keyword"
+            retrieval_error = "Pinecone returned no matching chunks"
     except Exception as e:
         retrieval_error = str(e)
         chunks = retrieve_local(query, top_k=top_k)

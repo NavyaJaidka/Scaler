@@ -11,9 +11,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-ROOT = Path(__file__).resolve().parent
-load_dotenv(ROOT / ".env", override=False)
-load_dotenv(ROOT / "env", override=False)
+SCRIPT_DIR = Path(__file__).resolve().parent
+BACKEND_DIR = SCRIPT_DIR.parent
+load_dotenv(BACKEND_DIR / ".env", override=False)
+load_dotenv(BACKEND_DIR / "env", override=False)
 
 
 def present(name: str) -> str:
@@ -21,8 +22,8 @@ def present(name: str) -> str:
 
 
 def main() -> None:
-    github_path = ROOT / "data" / "github_repos.json"
-    resume_path = ROOT / "data" / "resume.pdf"
+    github_path = BACKEND_DIR / "data" / "github_repos.json"
+    resume_path = BACKEND_DIR / "data" / "resume.pdf"
 
     repo_count = 0
     readme_count = 0

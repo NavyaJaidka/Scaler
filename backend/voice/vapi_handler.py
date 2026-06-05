@@ -19,6 +19,7 @@ from voice.calendar_tool import book_slot, format_slots_for_voice, get_availabil
 
 load_environment()
 logger = logging.getLogger(__name__)
+BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 VOICE_SYSTEM_PROMPT = PERSONA_IDENTITY + """
 
@@ -193,7 +194,7 @@ def _handle_tool_calls(tool_calls: list[dict]) -> dict:
 
 
 def _log_call_report(report: dict) -> None:
-    logs_path = Path("logs/call_metrics.jsonl")
+    logs_path = BACKEND_DIR / "logs" / "call_metrics.jsonl"
     logs_path.parent.mkdir(parents=True, exist_ok=True)
 
     record = {

@@ -20,9 +20,10 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
-PROJECT_ROOT = Path(__file__).resolve().parent
-load_dotenv(PROJECT_ROOT / ".env", override=False)
-load_dotenv(PROJECT_ROOT / "env", override=False)
+SCRIPT_DIR = Path(__file__).resolve().parent
+BACKEND_DIR = SCRIPT_DIR.parent
+load_dotenv(BACKEND_DIR / ".env", override=False)
+load_dotenv(BACKEND_DIR / "env", override=False)
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 GITHUB_USERNAME = os.environ.get("GITHUB_USERNAME", "YOUR_GITHUB_USERNAME")  # REPLACE THIS
@@ -117,7 +118,7 @@ def main(username: str, token: str = ""):
         time.sleep(0.3)
 
     # Write output
-    data_dir = Path(__file__).parent / "data"
+    data_dir = BACKEND_DIR / "data"
     data_dir.mkdir(exist_ok=True)
     output_path = data_dir / "github_repos.json"
     output_path.write_text(json.dumps(output, indent=2, ensure_ascii=False), encoding="utf-8")

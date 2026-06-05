@@ -34,6 +34,7 @@ INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME", "ai-persona")
 NAMESPACE = "persona"
 EMBEDDING_MODEL = "text-embedding-3-small"
 EMBEDDING_DIM = 1536
+BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 # ─── Index management ─────────────────────────────────────────────────────────
 
@@ -117,13 +118,10 @@ def upsert_vectors(index, vectors: list[dict], batch_size: int = 100) -> None:
 # ─── Resume ingestion ─────────────────────────────────────────────────────────
 
 def ingest_resume(index) -> int:
-    resume_path = Path("data/resume.pdf")
-    if not resume_path.exists():
-        # Try one level up
-        resume_path = Path("../data/resume.pdf")
+    resume_path = BACKEND_DIR / "data" / "resume.pdf"
     if not resume_path.exists():
         print("⚠️  data/resume.pdf not found — skipping resume ingestion.")
-        print("   Place your resume at ai-persona/data/resume.pdf and re-run.")
+        print("   Place your resume at data/resume.pdf and re-run.")
         return 0
 
     print("Ingesting resume...")
@@ -155,9 +153,7 @@ def ingest_resume(index) -> int:
 # ─── GitHub ingestion ─────────────────────────────────────────────────────────
 
 def ingest_github(index) -> int:
-    github_path = Path("data/github_repos.json")
-    if not github_path.exists():
-        github_path = Path("../data/github_repos.json")
+    github_path = BACKEND_DIR / "data" / "github_repos.json"
     if not github_path.exists():
         print("⚠️  data/github_repos.json not found — skipping GitHub ingestion.")
         print("   Run: python scripts/fetch_github.py")
@@ -214,9 +210,7 @@ def ingest_manual_context(index) -> int:
     Ingest any extra hand-written context (cover letter snippets, project notes, etc.)
     Place .txt files in data/extra/ and they'll be picked up here.
     """
-    extra_dir = Path("data/extra")
-    if not extra_dir.exists():
-        extra_dir = Path("../data/extra")
+    extra_dir = BACKEND_DIR / "data" / "extra"
     if not extra_dir.exists():
         return 0
 
@@ -250,11 +244,6 @@ def main():
     parser.add_argument("--only", choices=["resume", "github", "extra"], help="Ingest only this source")
     parser.add_argument("--clear", action="store_true", help="Clear namespace before ingesting")
     args = parser.parse_args()
-
-    # Change to project root so relative paths work
-    script_dir = Path(__file__).parent
-    project_root = script_dir.parent
-    os.chdir(project_root)
 
     index = get_or_create_index()
 
