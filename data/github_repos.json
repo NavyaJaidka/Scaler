@@ -1,0 +1,384 @@
+[
+  {
+    "name": "endee-intern-program",
+    "description": "AI Research & Code Copilot powered by Endee Vector Database",
+    "language": "Python",
+    "languages": {
+      "Python": 135960,
+      "JavaScript": 33488,
+      "PowerShell": 4397,
+      "CSS": 2732,
+      "HTML": 777
+    },
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "readme": "# AI Research & Code Copilot\n\nA production-grade multi-agent AI Research & Code Copilot system powered by **Endee Vector Database**. This system provides advanced document ingestion, vector search, RAG (Retrieval-Augmented Generation), and a multi-agent AI system for research assistance.\n\n![Python](https://img.shields.io/badge/python-3.10+-blue)\n![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-green)\n![React](https://img.shields.io/badge/React-18.2-blue)\n![Endee](https://img.shields.io/badge/Endee-VectorDB-purple)\n\n## 📋 Table of Contents\n\n- [Problem Statement](#problem-statement)\n- [Architecture](#architecture)\n- [System Flow](#system-flow)\n- [Features](#features)\n- [Endee Usage](#endee-usage)\n- [Quick Start](#quick-start)\n- [API Endpoints](#api-endpoints)\n- [Example Queries](#example-queries)\n- [Configuration](#configuration)\n- [Project Structure](#project-structure)\n\n---\n\n## Problem Statement\n\nTraditional document search systems rely on keyword matching, which fails to capture semantic meaning. This project addresses the need for:\n\n1. **Semantic Search**: Find relevant documents based on meaning, not just keywords\n2. **Intelligent Q&A**: Answer questions using context from uploaded documents\n3. **Multi-Agent Assistance**: Specialized AI agents for retrieval, analysis, and recommendations\n4. **Production-Ready**: Scalable architecture suitable for internship evaluation\n\n---\n\n## Architecture\n\n```\n┌─────────────────────────────────────────────────────────────────────────────┐\n│                            Frontend (React + Tailwind)                       │\n│  ┌─────────────┐  ┌─────────────┐  ┌──────────────────┐                   │\n│  │ Upload Page │  │ Query Page  │  │ Recommendations  │                   │\n│  └─────────────┘  └─────────────┘  └──────────────────┘                   │\n└─────────────────────────────────────────────────────────────────────────────┘\n                                      │\n                                      ▼\n┌─────────────────────────────────────────────────────────────────────────────┐\n│                            FastAPI Backend                                  │\n│  ┌──────────────────────────────────────────────────────────────────────┐  │\n│  │                          API Routes                                   │  │\n│  │  /documents/*  /search  /query  /agents/*  /index/*                 │  │\n│  └──────────────────────────────────────────────────────────────────────┘  │\n│                                      │                                      │\n│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐      │\n│  │ Ingestion  │  │ Embedding   │  │    RAG     │  │   Agents    │      │\n│  │  Service   │  │  Service    │  │  Pipeline   │  │             │      │\n│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘      │\n│                                      │                                      │\n└──────────────────────────────────────┼──────────────────────────────────────┘\n                                       │\n                                       ▼\n┌─────────────────────────────────────────────────────────────────────────────┐\n│                    Endee Vector Database (Docker)                           │\n│  ┌────────────────────────────────────────────────────────────────────┐    │\n│  │  HNSW Index │ Metadata Filters │ Similarity Search │ Quantization │    │\n│  └────────────────────────────────────────────────────────────────────┘    │\n└─────────────────────────────────────────────────────────────────────────────┘\n```\n\n### Components\n\n1. **Frontend (React + Tailwind)**\n   - Clean, modern UI\n   - Upload documents (PDF, TXT, GitHub)\n   - Query with RAG\n   - View recommendations\n\n2. **FastAPI Backend**\n   - RESTful API\n   - Async operations\n   - Error handling\n   - Request validation\n\n3. **Endee Vector Database**\n   - High-performance vector storage\n   - HNSW indexing\n   - Metadata filtering\n   - Multiple distance metrics\n\n4. **AI Services**\n   - *",
+    "commits": [
+      "fix: force Python 3.10 and remove transformers for faster, stable deploy",
+      "fix: remove heavy ML libraries for successful Render deployment",
+      "chore: optimize for Render free tier using OpenAI embeddings and CPU-only torch",
+      "fix: explicitly use free plan in render.yaml",
+      "feat: prepare project for deployment on Render and Vercel",
+      "Initial commit: AI Research & Code Copilot with Endee Vector Database"
+    ],
+    "url": "https://github.com/NavyaJaidka/endee-intern-program",
+    "created_at": "2026-03-01T15:26:07Z",
+    "updated_at": "2026-04-21T20:12:56Z",
+    "size_kb": 61,
+    "is_fork": false,
+    "default_branch": "master"
+  },
+  {
+    "name": "AI_Crope_Disease",
+    "description": "",
+    "language": "JavaScript",
+    "languages": {
+      "JavaScript": 84497,
+      "Python": 58614,
+      "Jupyter Notebook": 22873,
+      "CSS": 6080,
+      "HTML": 2055
+    },
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "readme": "# AI Crop Disease GAN — AgriGAN\n\n> **DCGAN-powered synthetic crop disease image generator + live AI disease detector.**\n> Built with PyTorch, Flask, React + Vite, and the PlantVillage dataset representing a complete solution for dataset augmentation in agricultural AI.\n\n---\n\n## 🌿 Project Overview\n\nIn precision agriculture, deep learning models are used to detect crop diseases from leaf images. However, a major challenge is **data scarcity**—certain plant diseases have very few training images, leading to poor model generalisation. \n\n**AgriGAN** actively solves this issue by deploying a Generative Adversarial Network (DCGAN) to generate synthetic crop disease images, effectively augmenting agricultural datasets. Additionally, the project features a fully functional ResNet-18 Disease Classifier to demonstrate real-world detection capabilities using the augmented data.\n\n### Expected Output & Use Cases\n- Synthesise highly realistic imagery of conditions like *Tomato Blight* or *Leaf Mold*.\n- Serve as dataset augmentation for training better crop disease detection systems.\n- Aid in smart agriculture and global food security.\n\n---\n\n## 🚀 Quick Start\n\n### 1. Install Dependencies\nEnsure you are using Python 3.9+ and run:\n```bash\npip install -r requirements.txt\n```\n\n### 2. Start the Backend API (Flask)\nThe backend acts as the bridge for running PyTorch models and serves the frontend. \n```bash\npython backend/app.py\n```\n*(Runs on `http://localhost:5000`)*\n\n### 3. Start the Frontend Application (React UI)\nOpen a new terminal and run:\n```bash\ncd frontend\nnpm install\nnpm run dev\n```\n*(Runs on `http://localhost:5173`)*\n\n---\n\n## 📂 Comprehensive Project Architecture\n\n### 1. Generative AI Subsystem (GAN)\nWe use a **Deep Convolutional GAN (DCGAN)** architecture consisting of two competing neural networks:\n- **Generator (`models/generator.py`)**: Takes a 100-dimensional noise vector and uses `ConvTranspose2d` layers to upsample it into a realistic $3 \\times 128 \\times 128$ image of a diseased leaf. It contains ~11.2 Million parameters.\n- **Discriminator (`models/discriminator.py`)**: A Convolutional Neural Network that classifies whether an image is Real (from PlantVillage) or Fake (from the Generator). \n\n### 2. Disease Classifier (`backend/classifier.py`)\nA **ResNet-18** classification model fine-tuned using transfer learning on the PlantVillage dataset. The classifier takes any user-uploaded image, normalises it according to ImageNet standards, and outputs a confidence score for the detected disease, alongside treatment recommendations.\n\n### 3. Backend REST API (`backend/app.py`)\nA Flask API that exposes four main endpoints:\n- `GET /api/health` — Checks the server status and whether the PyTorch model files exist.\n- `POST /api/generate` — Invokes the Generator to create $N$ synthetic images (Base64 encoded) with an optional mathematical noise seed for reproducibility.\n- `POST /api/detect` — Accepts multipart form-data image uploads, resizes them to 128x128, and passes them through the ResNet-18 model for diagnosis.\n- `GET /api/training-metrics` — Reads `training_losses.json` and streams historical Generator/Discriminator loss curves and FID scores back to the UI.\n\n### 4. Interactive UI (`frontend/src/components`)\nA meticulously crafted React, Vite, and Tailwind v4 single-page application containing:\n- **Dashboard (`Dashboard.jsx`)**: The interactive controller that fetches real DCGAN images from the backend. Includes SVG-based loss charts and generation controls (batch sizing, random seeding).\n- **DiseaseDetector (`DiseaseDetector.jsx`)**: A drag-and-drop diagnostic tool that calls the classifier API, displaying confidence score bars, severity ratings, and actionable treatment methodologies.\n- **GanPipeline (`GanPipeline.jsx`)**: A live, animated architecture diagram demonstrating step-by-step how the noise vector passes through the networks.\n- **DatasetGallery (`DatasetGallery.jsx`)**: An educational gallery showing sample diseases from PlantVil",
+    "commits": [
+      "Fix trailing slash and error masking",
+      "Fix Vite React Plugin dependency compatibility",
+      "Fix Vite dependency overlap for Vercel",
+      "Fix Render Blueprint for Free Tier",
+      "Initial commit: AgriGAN Crop Disease detector and DCGAN"
+    ],
+    "url": "https://github.com/NavyaJaidka/AI_Crope_Disease",
+    "created_at": "2026-04-15T21:26:18Z",
+    "updated_at": "2026-04-15T22:17:53Z",
+    "size_kb": 41205,
+    "is_fork": false,
+    "default_branch": "main"
+  },
+  {
+    "name": "AgroX",
+    "description": "",
+    "language": "Python",
+    "languages": {
+      "Python": 71694,
+      "HTML": 35110,
+      "CSS": 800,
+      "Procfile": 22
+    },
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "readme": "# Agricultural Assistant\r\n\r\nAn integrated system for crop recommendation, fertilizer recommendation, and crop price prediction.\r\n\r\n## Project Overview\r\n\r\nThis project combines three key agricultural assistance tools:\r\n\r\n1. **Crop Recommendation System**: Suggests suitable crops based on soil parameters and environmental conditions.\r\n2. **Fertilizer Recommendation System**: Recommends appropriate fertilizers based on soil nutrients and crop type.\r\n3. **Crop Price Prediction System**: Forecasts crop prices for the next 5 days using simple trend analysis (no TensorFlow required).\r\n\r\n## System Architecture\r\n\r\n### 1. Crop Recommendation System\r\n- Uses a Random Forest Classifier to recommend crops based on soil composition and environmental factors.\r\n- Input features: N (Nitrogen), P (Phosphorus), K (Potassium), temperature, humidity, pH, and rainfall.\r\n- Output: Recommended crop type.\r\n\r\n### 2. Fertilizer Recommendation System\r\n- Recommends fertilizers based on soil nutrient levels and crop requirements.\r\n- Input features: Temperature, humidity, moisture, soil type, crop type, nitrogen, potassium, and phosphorous values.\r\n- Output: Recommended fertilizer and nutrient improvement suggestions.\r\n\r\n### 3. Crop Price Prediction System\r\n- Uses a LSTM (Long Short-Term Memory) neural network to predict future crop prices.\r\n- Input: Historical price data for specific crops.\r\n- Output: Predicted prices for the next 5 days and a visualization graph.\r\n\r\n## Project Structure\r\n## Follow this structure only thoroughly.\r\n\r\n```\r\nagricultural-assistant/\r\n│\r\n├── crop_recommendation/\r\n│   ├── best_rf_model.joblib    # Trained Random Forest model\r\n│   ├── scaler.joblib           # Feature scaler\r\n│   ├── label_encoder.joblib    # Label encoder for crop types\r\n│   └── crop_recommendation.csv # Training data\r\n│\r\n├── fertilizer_recommendation/\r\n│   ├── fertilizer_model.pkl    # Trained fertilizer recommendation model\r\n│   ├── label_encoders.pkl      # Label encoders for categorical features\r\n│   └── fertilizer.csv          # Training data\r\n│\r\n├── crop_price_prediction/\r\n│   ├── lstm_model.h5           # Trained LSTM model\r\n│   ├── price_scaler.pkl        # Price scaler\r\n│   └── historical_prices.csv   # Historical price data\r\n│\r\n├──static/styles.css\r\n├──templates/\r\n│     ├──reports/\r\n│     │    ├──crop_results.html\r\n│     │    ├──fertilizer_results.html\r\n│     │    └──price_results.html\r\n│     ├──base.html\r\n│     ├──crop_recommend.html\r\n│     ├──index.html\r\n│     ├──fertilizer.html\r\n│     ├──price_predict.html\r\n│     ├──report_form.html\r\n│     └──report.html\r\n├──app.py                      #Flask implementation\r\n├── main.py                     # Main application entry point\r\n├── crop_price_predictor.py     # Standalone price prediction module\r\n├──README.md                   # This file\r\n└── setup.txt\r\n\r\n```\r\n\r\n## Data Requirements\r\n\r\n### Crop Recommendation Data\r\nFormat:\r\n```\r\nN,P,K,temperature,humidity,ph,rainfall,label\r\n90,42,43,20.87,82.00,6.50,202.93,rice\r\n85,58,41,21.77,80.31,7.03,226.65,rice\r\n...\r\n```\r\n\r\n### Fertilizer Recommendation Data\r\nFormat:\r\n```\r\nTemperature,Humidity,Moisture,Soil Type,Crop Type,Nitrogen,Potassium,Phosphorous,Fertilizer Name\r\n26,52,38,Sandy,Maize,37,0,0,Urea\r\n29,52,45,Loamy,Sugarcane,12,0,36,DAP\r\n...\r\n```\r\n\r\n### Crop Price Historical Data\r\nFormat:\r\n```\r\ndate,crop_name,price,market_location\r\n2023-01-01,rice,24.50,Mumbai\r\n2023-01-02,rice,24.75,Mumbai\r\n...\r\n```\r\n\r\n## How to Use\r\n\r\n### Setup\r\n1. Install required dependencies:\r\n   ```\r\n   pip install pandas numpy scikit-learn tensorflow joblib matplotlib\r\n   ```\r\n\r\n2. Place your CSV data files in their respective directories.\r\n\r\n### Running the Application\r\nExecute the scripts below and train models on your own, if needed tweaking, you can do so:\r\n```\r\npython crop_price_predictor.py\r\npython crop_and_fertilizer_reccomend.py\r\n```\r\nFor price prediction the models would be saved in crop_price_model after running the code.\r\nMove it from that folder to crop_price_prediction.\r\nAfter the ",
+    "commits": [
+      "Remove TensorFlow import - using sklearn only for price prediction",
+      "Update .gitignore to exclude outputs and duplicate directories",
+      "Re-enable price prediction using simple trend analysis (no TensorFlow)",
+      "Remove TensorFlow dependency and disable price prediction",
+      "Update TensorFlow requirement for Render compatibility",
+      "Remove login and register pages",
+      "Prepare project for Render deployment",
+      "first commit",
+      "Update requirements.txt",
+      "Create Procfile",
+      "Update requirements.txt",
+      "Update main.py",
+      "Update main.py",
+      "Update requirements.txt",
+      "Update requirements.txt",
+      "Update requirements.txt",
+      "first commit",
+      "first commit"
+    ],
+    "url": "https://github.com/NavyaJaidka/AgroX",
+    "created_at": "2025-06-20T19:29:11Z",
+    "updated_at": "2026-04-14T01:46:19Z",
+    "size_kb": 3725,
+    "is_fork": false,
+    "default_branch": "main"
+  },
+  {
+    "name": "CUET_TEST",
+    "description": "",
+    "language": "TypeScript",
+    "languages": {
+      "TypeScript": 275649,
+      "PLpgSQL": 5497,
+      "CSS": 3153,
+      "JavaScript": 2647,
+      "HTML": 872
+    },
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "readme": "",
+    "commits": [
+      "fix: remove invalid -tagger dependency causing Vercel build failure",
+      "chore: make project vercel-friendly and integrate backend"
+    ],
+    "url": "https://github.com/NavyaJaidka/CUET_TEST",
+    "created_at": "2026-04-14T01:26:18Z",
+    "updated_at": "2026-04-14T01:29:18Z",
+    "size_kb": 193,
+    "is_fork": false,
+    "default_branch": "master"
+  },
+  {
+    "name": "wednesday_quiz",
+    "description": "",
+    "language": "TypeScript",
+    "languages": {
+      "TypeScript": 191048,
+      "CSS": 3023,
+      "JavaScript": 1271,
+      "HTML": 1154
+    },
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "readme": "﻿# wednesday_quiz\r\n",
+    "commits": [
+      "Fix Vercel deployment issues: add missing dependencies, fix ES modules, add vercel.json",
+      "Updated project files",
+      "first commit"
+    ],
+    "url": "https://github.com/NavyaJaidka/wednesday_quiz",
+    "created_at": "2025-10-30T18:18:24Z",
+    "updated_at": "2026-04-06T19:20:35Z",
+    "size_kb": 650,
+    "is_fork": false,
+    "default_branch": "main"
+  },
+  {
+    "name": "Resume_Analyzer",
+    "description": "",
+    "language": "TypeScript",
+    "languages": {
+      "TypeScript": 295109,
+      "JavaScript": 11149,
+      "CSS": 4721,
+      "HTML": 1005
+    },
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "readme": "# ResumeIQ Pro\n\nAn intelligent ATS (Applicant Tracking System) score analyzer that evaluates your resume against job descriptions in real-time.\n\n## Features\n\n- 📄 **Resume Upload**: Support for PDF and DOCX files (up to 10MB)\n- 📊 **ATS Scoring**: Get an accurate score based on job description match\n- 🔍 **Skills Analysis**: Identify matching and missing skills\n- 📈 **Experience Matching**: Compare your experience with job requirements\n- 🎓 **Education Evaluation**: Assess educational fit for the role\n- 📥 **Resume Optimization**: Download an optimized version of your resume\n- 🎨 **Beautiful UI**: Built with React, TypeScript, and Tailwind CSS\n\n## Tech Stack\n\n### Frontend\n- **Vite** - Lightning-fast build tool\n- **React 18** - UI library\n- **TypeScript** - Type safety\n- **Tailwind CSS** - Styling\n- **React Router** - Client-side routing\n- **Shadcn/ui** - Component library\n\n### Backend\n- **Express.js** - Web framework\n- **TypeScript** - Type safety\n- **Multer** - File upload handling\n- **PDF-Parse** - PDF text extraction\n- **Mammoth** - DOCX text extraction\n- **jsPDF** - PDF generation\n\n### Deployment\n- **Vercel** - Serverless functions and static hosting\n- **PostgreSQL** - Database (optional for production)\n\n## Getting Started\n\n### Prerequisites\n- Node.js (v18 or higher)\n- npm or yarn\n- Git\n\n### Local Development\n\n1. **Clone the repository**\n   ```bash\n   git clone <your-repo-url>\n   cd resumeiq-pro\n   ```\n\n2. **Install dependencies**\n   ```bash\n   npm install\n   cd backend && npm install && cd ..\n   ```\n\n3. **Start the development servers**\n   \n   **Terminal 1 - Frontend:**\n   ```bash\n   npm run dev\n   ```\n   Frontend runs on http://localhost:8080\n\n   **Terminal 2 - Backend:**\n   ```bash\n   cd backend\n   npm run dev\n   ```\n   Backend runs on http://localhost:5000\n\n4. **Open in browser**\n   ```\n   http://localhost:8080\n   ```\n\n## Project Structure\n\n```\nresumeiq-pro/\n├── src/                      # Frontend React code\n│   ├── components/           # Reusable components\n│   ├── pages/               # Page components\n│   ├── lib/                 # Utilities and API client\n│   ├── contexts/            # React context\n│   ├── hooks/              # Custom React hooks\n│   └── styles/             # Global styles\n│\n├── backend/src/             # Backend Express code\n│   ├── controllers/         # Request handlers\n│   ├── routes/             # API routes\n│   ├── services/           # Business logic\n│   ├── types.ts            # TypeScript types\n│   └── db.ts              # Database layer\n│\n├── api/                     # Vercel Serverless Functions\n│   └── resumes/            # API endpoints\n│\n├── vercel.json             # Vercel configuration\n├── vite.config.ts          # Vite configuration\n├── tailwind.config.ts      # Tailwind configuration\n└── package.json            # Frontend dependencies\n```\n\n## API Endpoints\n\n### Local Development (Express)\n- `POST /api/resumes/upload` - Upload a resume\n- `POST /api/resumes/analyze` - Analyze resume\n- `GET /api/resumes/[id]` - Get resume by ID\n- `POST /api/resumes/download` - Download optimized resume\n- `GET /api/resumes/history/[userId]` - Get user history\n- `GET /health` - Health check\n\n### Production (Vercel)\nSame endpoints available as `/api/*` serverless functions\n\n## Features Implemented\n\n✅ PDF and DOCX file upload with validation  \n✅ Resume parsing and text extraction  \n✅ Skill extraction and matching  \n✅ Experience analysis  \n✅ Education evaluation  \n✅ ATS score calculation  \n✅ Resume optimization  \n✅ Beautiful responsive UI  \n✅ Vercel deployment ready  \n✅ Environment variable support  \n\n## Database Setup (Optional for Production)\n\nTo use PostgreSQL for persistent storage:\n\n1. **Set up a PostgreSQL database** (local or cloud)\n\n2. **Update environment variables**\n   ```bash\n   DATABASE_URL=postgres://user:password@localhost:5432/resumeiq\n   ```\n\n3. **Uncomment database code** in `backend/src/db.ts`\n\n4. **Run migrations** (create tables as needed)\n\n## Deployment to Vercel\n\nSee [VERCEL_DEPLOYMENT.m",
+    "commits": [
+      "fix: add pg and dotenv",
+      "fix: add pg and dotenv",
+      "fix: add pg and dotenv",
+      "fix: add pg and dotenv",
+      "postgres connected",
+      "feat: refactor api functions for Vercel Serverless and add deployment guide",
+      "feat: connect project to PostgreSQL and update database logic",
+      "Use valid @vercel/node runtime version 5.6.22",
+      "Use explicit @vercel/node runtime version",
+      "Fix vercel.json includeFiles type",
+      "Fix ES module issues for Vercel deployment",
+      "Simplify all API functions to test basic connectivity",
+      "Simplify API function to test basic connectivity",
+      "Remove runtime specification to allow Vercel auto-detection",
+      "Fix Vercel runtime configuration",
+      "Fix ES module compatibility for Vercel deployment",
+      "Fix file parsing to use buffers instead of file paths",
+      "Fix multipart file parsing in Vercel upload handler",
+      "Fix TypeScript error in multiparty file access",
+      "Fix PDF upload for Vercel deployment"
+    ],
+    "url": "https://github.com/NavyaJaidka/Resume_Analyzer",
+    "created_at": "2026-03-26T19:28:11Z",
+    "updated_at": "2026-04-01T15:56:23Z",
+    "size_kb": 3069,
+    "is_fork": false,
+    "default_branch": "main"
+  },
+  {
+    "name": "EvoBite",
+    "description": "",
+    "language": "TypeScript",
+    "languages": {
+      "TypeScript": 253958,
+      "CSS": 5310,
+      "HTML": 1241,
+      "JavaScript": 846
+    },
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "readme": "# EvoBite — Intelligent Diet & Lifestyle Planner\n\nAI-powered diet planner with personalized meals, smart calorie intelligence, and recipe-integrated plans. Eat Smart. Evolve Daily.\n\n## Features\n\n- Personalized diet planning based on user profile\n- Smart calorie intelligence\n- Recipe-integrated meal plans\n- Responsive dashboard with animations\n- PDF export functionality\n- Dark/Light theme support\n\n## Tech Stack\n\n- **Frontend**: React 18 + TypeScript + Vite\n- **UI**: Tailwind CSS + Shadcn/ui + Radix UI\n- **Charts**: Recharts\n- **Animations**: Framer Motion\n- **Forms**: React Hook Form + Zod\n- **Routing**: React Router\n- **PDF Generation**: jsPDF + html2canvas\n\n## Development\n\n### Prerequisites\n\n- Node.js 18+\n- npm or yarn\n\n### Installation\n\n```bash\nnpm install\n```\n\n### Development Server\n\n```bash\nnpm run dev\n```\n\nThe app will be available at `http://localhost:8080`\n\n### Build for Production\n\n```bash\nnpm run build\n```\n\n### Run Tests\n\n```bash\nnpm run test\n```\n\n## Deployment\n\n### Vercel (Recommended)\n\n1. Connect your GitHub repository to Vercel\n2. Vercel will automatically detect the Vite configuration\n3. The app will be deployed with the following settings:\n   - **Build Command**: `npm run build`\n   - **Output Directory**: `dist`\n   - **Node Version**: 18+\n\n### Manual Deployment\n\nThe `vercel.json` file is configured for optimal Vercel deployment with SPA routing support.\n\n## Environment Variables\n\nNo environment variables are required for this application.\n\n## License\n\nMIT\n",
+    "commits": [
+      "Fix: Remove invalid package name '-tagger' from devDependencies",
+      "Fix invalid package name error in vite.config.ts",
+      "Initial commit"
+    ],
+    "url": "https://github.com/NavyaJaidka/EvoBite",
+    "created_at": "2026-03-31T15:47:01Z",
+    "updated_at": "2026-03-31T15:58:42Z",
+    "size_kb": 241,
+    "is_fork": false,
+    "default_branch": "main"
+  },
+  {
+    "name": "truth-lie",
+    "description": "",
+    "language": "TypeScript",
+    "languages": {
+      "TypeScript": 185833,
+      "CSS": 6615,
+      "HTML": 1103,
+      "JavaScript": 846
+    },
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "readme": "",
+    "commits": [
+      "first commit",
+      "first commit"
+    ],
+    "url": "https://github.com/NavyaJaidka/truth-lie",
+    "created_at": "2025-09-26T08:19:02Z",
+    "updated_at": "2026-03-10T19:19:43Z",
+    "size_kb": 171,
+    "is_fork": false,
+    "default_branch": "main"
+  },
+  {
+    "name": "Mock_Test",
+    "description": "",
+    "language": "TypeScript",
+    "languages": {
+      "TypeScript": 312272,
+      "PLpgSQL": 5497,
+      "CSS": 3153,
+      "HTML": 914,
+      "JavaScript": 869
+    },
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "readme": "",
+    "commits": [
+      "Update: edited existing components and added EditTestPage & ResultDetail pages",
+      "Update: edited existing components and added EditTestPage & ResultDetail pages",
+      "Update .gitignore",
+      "Update .gitignore",
+      "Initial commit"
+    ],
+    "url": "https://github.com/NavyaJaidka/Mock_Test",
+    "created_at": "2025-06-20T20:53:41Z",
+    "updated_at": "2026-03-10T19:18:31Z",
+    "size_kb": 322,
+    "is_fork": false,
+    "default_branch": "main"
+  },
+  {
+    "name": "Portfolio",
+    "description": "",
+    "language": "TypeScript",
+    "languages": {
+      "TypeScript": 200777,
+      "CSS": 5720,
+      "HTML": 1431,
+      "JavaScript": 869
+    },
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "readme": "",
+    "commits": [
+      "Delete requirements.txt",
+      "Initial commit"
+    ],
+    "url": "https://github.com/NavyaJaidka/Portfolio",
+    "created_at": "2025-07-05T10:10:47Z",
+    "updated_at": "2025-07-05T10:15:21Z",
+    "size_kb": 171,
+    "is_fork": false,
+    "default_branch": "main"
+  },
+  {
+    "name": "Mini_Games",
+    "description": "",
+    "language": "TypeScript",
+    "languages": {
+      "TypeScript": 222555,
+      "CSS": 2840,
+      "HTML": 1077,
+      "JavaScript": 869
+    },
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "readme": "",
+    "commits": [
+      "Fix: removed invalid package name and updated dependencies",
+      "Initial commit of Mini Games app"
+    ],
+    "url": "https://github.com/NavyaJaidka/Mini_Games",
+    "created_at": "2025-06-20T11:38:47Z",
+    "updated_at": "2025-06-20T11:46:06Z",
+    "size_kb": 176,
+    "is_fork": false,
+    "default_branch": "main"
+  },
+  {
+    "name": "OncoAware",
+    "description": "",
+    "language": "TypeScript",
+    "languages": {
+      "TypeScript": 189302,
+      "CSS": 2840,
+      "HTML": 1049,
+      "JavaScript": 869
+    },
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "readme": "# OncoAware\n<h2 align=\"left\">💫 About Me:<br><br>👩‍💻 I’m currently working on<br>Sharpening my skills in AI/ML, full-stack development, and building clean, user-friendly web interfaces.<br><br>🤝 I’m looking to collaborate on<br>Open-source projects that focus on healthcare, mental wellness, or social impact.<br><br>🤔 I’m looking for help with<br>Deep learning best practices and optimizing model performance.<br><br>🌱 I’m currently learning<br>Advanced machine learning techniques and Exploring deep learning frameworks and refining my design eye for intuitive interfaces.<br><br>💬 Ask me about<br>Web development, AI workflows, building with React + Flask, profile improvement like resume, Linkedin or organizing hackathon teams!<br><br>⚡ Fun fact<br>I love turning complex problems into elegant tech solutions — and I never say no to a good brainstorming session!</h2>\n\n###\n\n<div align=\"center\">\n  <img src=\"https://github-readme-stats.vercel.app/api?username=NavyaJaidka&hide_title=false&hide_rank=false&show_icons=true&include_all_commits=true&count_private=true&disable_animations=false&theme=dracula&locale=en&hide_border=false\" height=\"150\" alt=\"stats graph\"  />\n  <img src=\"https://github-readme-stats.vercel.app/api/top-langs?username=NavyaJaidka&locale=en&hide_title=false&layout=compact&card_width=320&langs_count=5&theme=dracula&hide_border=false\" height=\"150\" alt=\"languages graph\"  />\n</div>\n\n###\n\n<div align=\"left\">\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg\" height=\"30\" alt=\"javascript logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg\" height=\"30\" alt=\"typescript logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg\" height=\"30\" alt=\"react logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg\" height=\"30\" alt=\"html5 logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg\" height=\"30\" alt=\"css3 logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg\" height=\"30\" alt=\"python logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg\" height=\"30\" alt=\"csharp logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/android/android-original.svg\" height=\"30\" alt=\"android logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/anaconda/anaconda-original.svg\" height=\"30\" alt=\"anaconda logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg\" height=\"30\" alt=\"azure logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg\" height=\"30\" alt=\"bootstrap logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg\" height=\"30\" alt=\"c logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/canva/canva-original.svg\" height=\"30\" alt=\"canva logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg\" height=\"30\" alt=\"cplusplus logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg\" height=\"30\" alt=\"figma logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg\" height=\"30\" alt=\"git logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg\" height=\"30\" alt=\"github logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jupyter/jupyter-o",
+    "commits": [
+      "Update README.md",
+      "Update package.json",
+      "Delete requirements.txt",
+      "Initial commit",
+      "Create README.md"
+    ],
+    "url": "https://github.com/NavyaJaidka/OncoAware",
+    "created_at": "2025-06-02T10:44:31Z",
+    "updated_at": "2025-06-02T11:37:22Z",
+    "size_kb": 175,
+    "is_fork": false,
+    "default_branch": "main"
+  },
+  {
+    "name": "NavyaJaidka",
+    "description": "",
+    "language": "",
+    "languages": {},
+    "topics": [],
+    "stars": 0,
+    "forks": 0,
+    "readme": "<h2 align=\"left\">💫 About Me:<br><br>👩‍💻 I’m currently working on<br>Sharpening my skills in AI/ML, full-stack development, and building clean, user-friendly web interfaces.<br><br>🤝 I’m looking to collaborate on<br>Open-source projects that focus on healthcare, mental wellness, or social impact.<br><br>🤔 I’m looking for help with<br>Deep learning best practices and optimizing model performance.<br><br>🌱 I’m currently learning<br>Advanced machine learning techniques and Exploring deep learning frameworks and refining my design eye for intuitive interfaces.<br><br>💬 Ask me about<br>Web development, AI workflows, building with React + Flask, profile improvement like resume, Linkedin or organizing hackathon teams!<br><br>⚡ Fun fact<br>I love turning complex problems into elegant tech solutions — and I never say no to a good brainstorming session!</h2>\n\n###\n\n<div align=\"center\">\n  <img src=\"https://github-readme-stats.vercel.app/api?username=NavyaJaidka&hide_title=false&hide_rank=false&show_icons=true&include_all_commits=true&count_private=true&disable_animations=false&theme=dracula&locale=en&hide_border=false\" height=\"150\" alt=\"stats graph\"  />\n  <img src=\"https://github-readme-stats.vercel.app/api/top-langs?username=NavyaJaidka&locale=en&hide_title=false&layout=compact&card_width=320&langs_count=5&theme=dracula&hide_border=false\" height=\"150\" alt=\"languages graph\"  />\n</div>\n\n###\n\n<div align=\"left\">\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg\" height=\"30\" alt=\"javascript logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg\" height=\"30\" alt=\"typescript logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg\" height=\"30\" alt=\"react logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg\" height=\"30\" alt=\"html5 logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg\" height=\"30\" alt=\"css3 logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg\" height=\"30\" alt=\"python logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg\" height=\"30\" alt=\"csharp logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/android/android-original.svg\" height=\"30\" alt=\"android logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/anaconda/anaconda-original.svg\" height=\"30\" alt=\"anaconda logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg\" height=\"30\" alt=\"azure logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg\" height=\"30\" alt=\"bootstrap logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg\" height=\"30\" alt=\"c logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/canva/canva-original.svg\" height=\"30\" alt=\"canva logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg\" height=\"30\" alt=\"cplusplus logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg\" height=\"30\" alt=\"figma logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg\" height=\"30\" alt=\"git logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg\" height=\"30\" alt=\"github logo\"  />\n  <img width=\"12\" />\n  <img src=\"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jupyter/jupyter-original.svg\"",
+    "commits": [
+      "Update README.md",
+      "Update pacman.yml",
+      "Update README.md",
+      "Update snake.yml",
+      "Create pacman.yml",
+      "Create snake.yml",
+      "Delete workflows directory",
+      "Create pacman.yml",
+      "Create snake.yml",
+      "Update README.md",
+      "Initial commit"
+    ],
+    "url": "https://github.com/NavyaJaidka/NavyaJaidka",
+    "created_at": "2025-06-02T08:03:25Z",
+    "updated_at": "2025-06-02T10:35:04Z",
+    "size_kb": 11189,
+    "is_fork": false,
+    "default_branch": "main"
+  }
+]

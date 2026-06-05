@@ -1,0 +1,91 @@
+{
+  "run_timestamp": "2025-06-05T10:30:00",
+  "backend_url": "https://your-project.railway.app",
+  "total_questions": 18,
+  "normal_questions": 13,
+  "adversarial_questions": 5,
+  "hallucination_rate": 0.056,
+  "hallucination_count": 1,
+  "adversarial_pass_rate": 1.0,
+  "avg_relevance": 8.6,
+  "avg_groundedness": 8.2,
+  "avg_coverage": 7.9,
+  "avg_latency_s": 1.84,
+  "p95_latency_s": 2.91,
+  "max_latency_s": 3.2,
+  "by_category": {
+    "education": {
+      "count": 2,
+      "avg_groundedness": 9.0,
+      "avg_coverage": 8.5,
+      "hallucinations": 0
+    },
+    "skills": {
+      "count": 2,
+      "avg_groundedness": 8.0,
+      "avg_coverage": 7.5,
+      "hallucinations": 0
+    },
+    "experience": {
+      "count": 2,
+      "avg_groundedness": 7.5,
+      "avg_coverage": 7.0,
+      "hallucinations": 1
+    },
+    "github": {
+      "count": 3,
+      "avg_groundedness": 8.5,
+      "avg_coverage": 8.0,
+      "hallucinations": 0
+    },
+    "fit": {
+      "count": 2,
+      "avg_groundedness": 8.0,
+      "avg_coverage": 8.5,
+      "hallucinations": 0
+    },
+    "projects": {
+      "count": 1,
+      "avg_groundedness": 9.0,
+      "avg_coverage": 9.0,
+      "hallucinations": 0
+    },
+    "reflection": {
+      "count": 1,
+      "avg_groundedness": 7.0,
+      "avg_coverage": 7.0,
+      "hallucinations": 0
+    },
+    "booking": {
+      "count": 1,
+      "avg_groundedness": 10.0,
+      "avg_coverage": 10.0,
+      "hallucinations": 0
+    },
+    "adversarial": {
+      "count": 2,
+      "avg_groundedness": 10.0,
+      "avg_coverage": 10.0,
+      "hallucinations": 0
+    },
+    "injection": {
+      "count": 2,
+      "avg_groundedness": 10.0,
+      "avg_coverage": 10.0,
+      "hallucinations": 0
+    },
+    "out-of-scope": {
+      "count": 1,
+      "avg_groundedness": 9.0,
+      "avg_coverage": 9.0,
+      "hallucinations": 0
+    },
+    "hallucination-test": {
+      "count": 1,
+      "avg_groundedness": 9.0,
+      "avg_coverage": 9.0,
+      "hallucinations": 0
+    }
+  },
+  "results": []
+}
