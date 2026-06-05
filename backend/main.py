@@ -37,7 +37,8 @@ logger = logging.getLogger(__name__)
 # ─── Gemini setup ─────────────────────────────────────────────────────────────
 genai.configure(api_key=require_env("GEMINI_API_KEY")["GEMINI_API_KEY"])
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent
+
 gemini_model = genai.GenerativeModel(
     model_name=GEMINI_MODEL,
     system_instruction=PERSONA_IDENTITY,
