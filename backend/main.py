@@ -474,7 +474,14 @@ async def vobiz_respond(request: Request):
         or ""
     ).strip()
     digits = (payload.get("Digits") or payload.get("digits") or "").strip()
-    logger.info("Vobiz speech received: %r", speech[:120])
+    input_type = payload.get("InputType") or payload.get("inputType") or ""
+    confidence = payload.get("SpeechConfidenceScore") or payload.get("speechConfidenceScore") or ""
+    logger.info(
+        "Vobiz speech received: %r | input_type=%r | confidence=%r",
+        speech[:120],
+        input_type,
+        confidence,
+    )
 
     if digits:
         logger.info("Vobiz digits received: %r", digits)
