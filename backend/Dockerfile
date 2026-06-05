@@ -13,14 +13,11 @@ COPY . .
 
 RUN mkdir -p logs data
 
-# ✅ Run this on every build/deploy
-ARG GITHUB_USERNAME
-ENV GITHUB_USERNAME=$GITHUB_USERNAME
+# ✅ Pass GitHub username at build time
+ARG GITHUB_USERNAME=NavyaJaidka
+
 RUN python scripts/fetch_github.py
 
 EXPOSE 8000
-
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health')" || exit 1
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
