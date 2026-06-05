@@ -187,17 +187,16 @@ def start_outbound_call(phone_number: str, name: str = "", message: str = "") ->
 def _voice_xml(text: str, include_gather: bool = True) -> Response:
     safe_text = html.escape(text.strip() or "I did not catch that. Could you repeat?")
     action = html.escape(_respond_url())
-    language = html.escape(_env("VOBIZ_SPEECH_LANGUAGE") or "en-IN")
     if include_gather and action:
         body = f"""
-    <Gather inputType="speech" action="{action}" method="POST" speechModel="phone_call" language="{language}" executionTimeout="30" speechEndTimeout="5" redirect="true">
-        <Speak voice="WOMAN" language="en-US">{safe_text}</Speak>
+    <Gather inputType="speech" action="{action}" method="POST" speechModel="phone_call" executionTimeout="30" speechEndTimeout="auto">
+        <Speak>{safe_text}</Speak>
     </Gather>
-    <Speak voice="WOMAN" language="en-US">I did not hear anything. Please try again.</Speak>
-    <Redirect method="POST">{action}</Redirect>"""
+    <Speak>I did not hear anything. Goodbye.</Speak>
+    <Hangup/>"""
     else:
         body = f"""
-    <Speak voice="WOMAN" language="en-US">{safe_text}</Speak>
+    <Speak>{safe_text}</Speak>
     <Hangup/>"""
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
