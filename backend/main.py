@@ -9,6 +9,7 @@ Routes:
   POST /vobiz/answer      -> Vobiz XML answer URL
   POST /vobiz/respond     -> Vobiz speech turn handler
   POST /vobiz/status      -> Vobiz call status callback
+  POST /vobiz/fallback    -> Vobiz fallback XML URL
   WS   /vobiz/media       -> Vobiz media WebSocket
   GET  /health            → System health + index stats
   GET  /                  → API info
@@ -265,7 +266,7 @@ async def root():
     return {
         "name": "AI Persona API",
         "version": "1.0.0",
-        "endpoints": ["/chat", "/slots", "/book", "/github/repos", "/voice/config", "/voice/call", "/vobiz/answer", "/vobiz/respond", "/vobiz/status", "/vobiz/media", "/health"],
+        "endpoints": ["/chat", "/slots", "/book", "/github/repos", "/voice/config", "/voice/call", "/vobiz/answer", "/vobiz/respond", "/vobiz/status", "/vobiz/fallback", "/vobiz/media", "/health"],
     }
 
 
@@ -435,22 +436,14 @@ async def book(req: BookRequest):
 @app.api_route("/vobiz/answer", methods=["GET", "POST"])
 async def vobiz_answer(request: Request):
     """Return Vobiz XML when an outbound call is answered."""
-    first_message = ""
-    content_type = request.headers.get("content-type", "")
-    try:
-        if "application/json" in content_type:
-            payload = await request.json()
-        else:
-            form = await request.form()
-            payload = dict(form)
-        logger.info("Vobiz answer payload keys: %s", sorted(payload.keys()))
-        custom_data = payload.get("custom_data") or payload.get("CustomField") or ""
-        if custom_data:
-            parsed = json.loads(custom_data)
-            first_message = parsed.get("first_message", "")
-    except Exception:
-        first_message = ""
-    return answer_xml(first_message=first_message)
+    logger.info("Vobiz answer URL hit")
+    return answer_xml()
+
+
+@app.api_route("/vobiz/fallback", methods=["GET", "POST"])
+async def vobiz_fallback():
+    """Return simple XML for Vobiz fallback validation."""
+    return response_xml("Sorry, the voice app could not start. Please try again later.", hangup=True)
 
 
 @app.api_route("/vobiz/respond", methods=["GET", "POST"])

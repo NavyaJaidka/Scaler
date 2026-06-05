@@ -73,6 +73,17 @@ def _status_callback_url() -> str:
     return f"{base_url}/vobiz/status"
 
 
+def _fallback_url() -> str:
+    explicit = _env("VOBIZ_FALLBACK_URL")
+    if explicit:
+        return explicit
+
+    base_url = _public_base_url()
+    if not base_url:
+        return ""
+    return f"{base_url}/vobiz/fallback"
+
+
 def vobiz_config() -> dict[str, Any]:
     answer_url = _answer_url()
     respond_url = _respond_url()
@@ -88,12 +99,14 @@ def vobiz_config() -> dict[str, Any]:
         "answer_url": answer_url,
         "respond_url": respond_url,
         "webhook_path": "/vobiz/status",
+        "fallback_url": _fallback_url(),
         "configured": {
             "vobiz_auth_id": bool(_env("VOBIZ_AUTH_ID")),
             "vobiz_auth_token": bool(_env("VOBIZ_AUTH_TOKEN")),
             "vobiz_caller_id": bool(_env("VOBIZ_CALLER_ID")),
             "vobiz_answer_url": bool(answer_url),
             "vobiz_respond_url": bool(respond_url),
+            "vobiz_fallback_url": bool(_fallback_url()),
         },
     }
 
