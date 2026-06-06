@@ -24,66 +24,61 @@ This project is built to demonstrate a real AI-driven candidate experience: answ
 
 ## Architecture
 
+This project is organized into three clear layers:
+
+- **Layer 1: Data layer** — resume PDF + public GitHub repos are fetched, chunked, embedded with **OpenAI text-embedding-3-small**, and persisted in **Pinecone**.
+- **Layer 2: Backend** — **FastAPI** on Railway handles chat requests and Vobiz voice webhook events. Each query retrieves the top 6 Pinecone chunks, builds a grounded prompt, and sends it to **Gemini 1.5 Flash**. Gemini is constrained to answer only from retrieved context.
+- **Layer 3: Interfaces** — chat runs in **Next.js** on Vercel, and voice runs through **Vobiz** with **Deepgram** STT and **ElevenLabs** TTS.
+
 ```mermaid
-flowchart LR
-  subgraph USER[L1: User]
-    browser[Browser UI]
-    phone[Phone Call]
-  end
-
-  subgraph FRONTEND[L2: Frontend]
-    next[Next.js UI]
-  end
-
-  subgraph BACKEND[L3: API Backend]
-    fastapi[FastAPI Backend]
-    rag[RAG Pipeline]
-    calendar[Calendar Booking]
-    vobiz[Vobiz Voice Flow]
-  end
-
-  subgraph DATA[L4: Data & APIs]
+flowchart TD
+  subgraph L1[Layer 1: Data Layer]
     resume[Resume PDF]
-    github[GitHub Repo JSON]
-    pinecone[Pinecone Vector DB]
-    openai[OpenAI Embeddings]
-    gemini[Gemini LLM]
+    github[GitHub repos + commits]
+    chunk[Chunk + embed]
+    embed[OpenAI embeddings]
+    pinecone[Pinecone vector index]
   end
 
-  browser -->|HTTP| next
-  next -->|API proxy| fastapi
-  phone -->|Vobiz outbound| vobiz
-  vobiz -->|webhook / call control| fastapi
-  fastapi -->|retrieve| rag
-  rag -->|search| pinecone
-  rag -->|embed| openai
-  fastapi -->|LLM generation| gemini
-  fastapi -->|book| calendar
-  rag --> resume
-  rag --> github
+  subgraph L2[Layer 2: Backend]
+    fastapi[FastAPI API + webhook]
+    retriever[RAG retriever]
+    prompt[Prompt builder]
+    gemini[Gemini 1.5 Flash]
+    vobiz[Vobiz voice gateway]
+    deepgram[Deepgram STT]
+    elevenlabs[ElevenLabs TTS]
+  end
+
+  subgraph L3[Layer 3: Interfaces]
+    web[Next.js chat UI]
+    call[Phone call]
+  end
+
+  resume --> chunk
+  github --> chunk
+  chunk --> embed
+  embed --> pinecone
+  web -->|POST /chat| fastapi
+  call -->|outbound/inbound| vobiz
+  vobiz -->|webhook events| fastapi
+  fastapi -->|top 6 chunks| retriever
+  retriever -->|search| pinecone
+  fastapi -->|build grounded prompt| prompt
+  prompt -->|invoke| gemini
+  gemini -->|answer| fastapi
+  fastapi -->|reply| web
+  call -->|audio| deepgram
+  deepgram -->|transcript| fastapi
+  fastapi -->|response text| elevenlabs
+  elevenlabs -->|speech| vobiz
 ```
 
-```text
-USER
-  ├─ Browser Chat UI (Next.js)
-  └─ Phone Call (Vobiz)
+### Quick monitoring path
 
-Frontend
-  └─ Next.js / Tailwind chat + widgets
+**Railway logs → Pinecone index → Vercel**
 
-Backend
-  ├─ FastAPI REST API
-  ├─ RAG pipeline (resume + GitHub)
-  ├─ Gemini LLM persona generation
-  ├─ Pinecone vector search
-  └─ Vobiz voice/webhook handling
-
-Data
-  ├─ data/resume.pdf
-  ├─ data/github_repos.json
-  ├─ OpenAI embeddings
-  └─ Pinecone namespace: persona
-```
+This is the fastest path to verify the backend behavior, retrieval health, and frontend connectivity.
 
 ---
 
