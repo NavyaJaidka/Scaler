@@ -33,14 +33,20 @@ interface VoiceConfig {
   configured?: Record<string, boolean>;
 }
 
-const SUGGESTED_QUESTIONS = [
-  "Why should Scaler hire you?",
-  "What makes you unique?",
-  "Tell me about your GitHub projects",
-  "What's your tech stack?",
-  "Check interview availability",
-  "Call AI representative",
-  "What AI/ML have you built?",
+const DRIVE_FILE_ID = "1VbdBsU-kOoa5UrJZ9fY6VpRZWXXh5CTt";
+const GITHUB_PROFILE_URL = "https://github.com/NavyaJaidka";
+const RESUME_DOWNLOAD_URL = `https://drive.google.com/uc?export=download&id=${DRIVE_FILE_ID}`;
+
+const QUICK_ACTIONS = [
+  { label: "Why should Scaler hire you?", type: "question" },
+  { label: "What makes you unique?", type: "question" },
+  { label: "Tell me about your GitHub projects", type: "question" },
+  { label: "What's your tech stack?", type: "question" },
+  { label: "Check interview availability", type: "question" },
+  { label: "Call AI representative", type: "voice" },
+  { label: "What AI/ML have you built?", type: "question" },
+  { label: "GitHub profile", type: "github" },
+  { label: "Download resume", type: "resume" },
 ];
 
 const INITIAL_MESSAGE: Message = {
@@ -176,20 +182,30 @@ export default function Home() {
     setShowVoiceCall(true);
   };
 
-  const handleSuggestedQuestion = (question: string) => {
-    if (question.toLowerCase().includes("call ai representative")) {
+  const handleQuickAction = (action: typeof QUICK_ACTIONS[number]) => {
+    if (action.type === "github") {
+      window.open(GITHUB_PROFILE_URL, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    if (action.type === "resume") {
+      window.open(RESUME_DOWNLOAD_URL, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    if (action.type === "voice") {
       startVoiceCall();
       return;
     }
 
-    const lower = question.toLowerCase();
+    const lower = action.label.toLowerCase();
     const isProjectQuestion =
       lower.includes("github") ||
       lower.includes("project") ||
       lower.includes("repo");
     setShowProjects(isProjectQuestion);
     if (!isProjectQuestion) setExpandedRepo(null);
-    send(question);
+    send(action.label);
   };
 
   const toggleRepo = (repoName: string) => {
@@ -265,14 +281,14 @@ export default function Home() {
 
         {/* Quick-question chips */}
         <div className="px-3 py-2 border-b border-gray-100 flex gap-1.5 overflow-x-auto flex-shrink-0 scrollbar-hide">
-          {SUGGESTED_QUESTIONS.map(q => (
+          {QUICK_ACTIONS.map(action => (
             <button
-              key={q}
-              onClick={() => handleSuggestedQuestion(q)}
+              key={action.label}
+              onClick={() => handleQuickAction(action)}
               disabled={loading}
               className="text-[11px] whitespace-nowrap px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors disabled:opacity-50 font-medium flex-shrink-0"
             >
-              {q}
+              {action.label}
             </button>
           ))}
         </div>
