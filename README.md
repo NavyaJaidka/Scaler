@@ -41,37 +41,37 @@ flowchart TD
   end
 
   subgraph L2[Layer 2: Backend]
-    fastapi[FastAPI API + webhook]
+    fastapiApi[FastAPI API + webhook]
     retriever[RAG retriever]
     prompt[Prompt builder]
     gemini[Gemini 1.5 Flash]
-    vobiz[Vobiz voice gateway]
+    vobizGateway[Vobiz voice gateway]
     deepgram[Deepgram STT]
     elevenlabs[ElevenLabs TTS]
   end
 
   subgraph L3[Layer 3: Interfaces]
     web[Next.js chat UI]
-    call[Phone call]
+    phoneCall[Phone call]
   end
 
   resume --> chunk
   github --> chunk
   chunk --> embed
   embed --> pinecone
-  web -->|POST /chat| fastapi
-  call -->|outbound/inbound| vobiz
-  vobiz -->|webhook events| fastapi
-  fastapi -->|top 6 chunks| retriever
+  web -->|POST /chat| fastapiApi
+  phoneCall -->|outbound/inbound| vobizGateway
+  vobizGateway -->|webhook events| fastapiApi
+  fastapiApi -->|top 6 chunks| retriever
   retriever -->|search| pinecone
-  fastapi -->|build grounded prompt| prompt
+  fastapiApi -->|build grounded prompt| prompt
   prompt -->|invoke| gemini
-  gemini -->|answer| fastapi
-  fastapi -->|reply| web
-  call -->|audio| deepgram
-  deepgram -->|transcript| fastapi
-  fastapi -->|response text| elevenlabs
-  elevenlabs -->|speech| vobiz
+  gemini -->|answer| fastapiApi
+  fastapiApi -->|reply| web
+  phoneCall -->|audio| deepgram
+  deepgram -->|transcript| fastapiApi
+  fastapiApi -->|response text| elevenlabs
+  elevenlabs -->|speech| vobizGateway
 ```
 
 ### Quick monitoring path
