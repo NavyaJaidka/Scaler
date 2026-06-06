@@ -70,8 +70,31 @@ export default function Home() {
   const [voiceConfig, setVoiceConfig] = useState<VoiceConfig | null>(null);
   const [expandedRepo, setExpandedRepo] = useState<string | null>(null);
   const [showProjects, setShowProjects] = useState(false);
+  const [isDark, setIsDark] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Theme initialization
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const shouldBeDark = savedTheme ? savedTheme === "dark" : prefersDark;
+    setIsDark(shouldBeDark);
+    if (shouldBeDark) {
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setIsDark(!isDark);
+    if (!isDark) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  };
 
   // Check backend health on mount
   useEffect(() => {
@@ -229,50 +252,67 @@ export default function Home() {
   };
 
   const sourceLabel = (src: string) => {
-    if (src === "resume") return { label: "Resume", cls: "source-resume" };
-    if (src === "github") return { label: "GitHub", cls: "source-github" };
-    return { label: src, cls: "bg-gray-100 text-gray-600" };
+    if (src === "resume") return { label: "Resume", cls: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800" };
+    if (src === "github") return { label: "GitHub", cls: "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800" };
+    return { label: src, cls: "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600" };
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4">
+    <main className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors duration-300">
       {/* Background decoration */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 opacity-5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500 opacity-5 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 opacity-8 rounded-full blur-3xl dark:opacity-5" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500 opacity-8 rounded-full blur-3xl dark:opacity-5" />
       </div>
 
       {/* Chat container */}
-      <div className="glass-card w-full max-w-2xl rounded-2xl flex flex-col h-[90vh] max-h-[700px] relative z-10">
+      <div className="w-full max-w-2xl rounded-3xl flex flex-col h-[90vh] max-h-[700px] relative z-10 bg-white dark:bg-slate-800 shadow-2xl dark:shadow-2xl dark:shadow-black/50 overflow-hidden transition-colors duration-300">
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-700 to-blue-600 p-4 rounded-t-2xl text-white flex-shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="bg-gradient-to-r from-blue-700 to-blue-600 dark:from-blue-900 dark:to-blue-800 px-6 py-5 text-white flex-shrink-0 transition-colors duration-300">
+          <div className="flex items-center gap-4">
             {/* Avatar */}
-            <div className="w-10 h-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center font-bold text-sm flex-shrink-0">
+            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center font-bold text-base flex-shrink-0 shadow-lg">
               AI
             </div>
 
             {/* Identity */}
             <div className="flex-1 min-w-0">
-              <h1 className="text-base font-bold leading-tight">Navya Jaidka</h1>
-              <p className="text-[11px] opacity-70 leading-tight mt-0.5">
+              <h1 className="text-lg font-bold leading-tight">Navya Jaidka</h1>
+              <p className="text-xs opacity-80 leading-snug mt-1 font-medium">
                 AI Representative · RAG-grounded · Gemini 2.5 Flash
               </p>
             </div>
 
             {/* Status */}
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              <div className={`w-2 h-2 rounded-full ${isOnline ? "bg-green-400 animate-pulse" : "bg-red-400"}`} />
-              <span className="text-[11px] opacity-75">{isOnline ? "Online" : "Offline"}</span>
+            <div className="flex items-center gap-2 flex-shrink-0 px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+              <div className={`w-2 h-2 rounded-full ${isOnline ? "bg-emerald-300 animate-pulse" : "bg-red-300"}`} />
+              <span className="text-xs font-medium opacity-90">{isOnline ? "Online" : "Offline"}</span>
             </div>
+
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="flex-shrink-0 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center transition-all hover:scale-110"
+              aria-label="Toggle dark mode"
+            >
+              {isDark ? (
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1hm4.22 1.78a1 1 0 011.414 0l.707.707a1 1 0 11-1.414 1.414l-.707-.707a1 1 0 010-1.414zm2.828 2.828a1 1 0 011.414 0l.707.707a1 1 0 11-1.414 1.414l-.707-.707a1 1 0 010-1.414zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-4.22-1.78a1 1 0 011.414 0l.707.707a1 1 0 11-1.414 1.414l-.707-.707a1 1 0 010-1.414zm-2.828-2.828a1 1 0 011.414 0l.707.707a1 1 0 11-1.414 1.414l-.707-.707a1 1 0 010-1.414zM3 11a1 1 0 100-2H2a1 1 0 100 2h1zm14.22-9.22a1 1 0 011.414 0l.707.707a1 1 0 11-1.414 1.414l-.707-.707a1 1 0 010-1.414zM10 7a3 3 0 100 6 3 3 0 000-6z" clipRule="evenodd" />
+                </svg>
+              )}
+            </button>
           </div>
 
           {/* Tech stack badges */}
-          <div className="flex gap-1.5 mt-3 flex-wrap">
+          <div className="flex gap-2 mt-4 flex-wrap">
             {["Gemini 2.5 Flash", "OpenAI Embeddings", "Pinecone RAG", "Cal.com"].map(tag => (
               <span key={tag}
-                className="text-[10px] px-2 py-0.5 rounded-full bg-white/15 border border-white/20 font-medium">
+                className="text-xs px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 font-semibold hover:bg-white/20 transition-colors">
                 {tag}
               </span>
             ))}
@@ -280,13 +320,13 @@ export default function Home() {
         </div>
 
         {/* Quick-question chips */}
-        <div className="px-3 py-2 border-b border-gray-100 flex gap-1.5 overflow-x-auto flex-shrink-0 scrollbar-hide">
+        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex gap-2 overflow-x-auto flex-shrink-0 scrollbar-hide bg-gradient-to-r from-slate-50 to-blue-50/30 dark:from-slate-700 dark:to-slate-700/50 transition-colors duration-300">
           {QUICK_ACTIONS.map(action => (
             <button
               key={action.label}
               onClick={() => handleQuickAction(action)}
               disabled={loading}
-              className="text-[11px] whitespace-nowrap px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors disabled:opacity-50 font-medium flex-shrink-0"
+              className="text-xs whitespace-nowrap px-3.5 py-2 rounded-lg bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900 dark:to-blue-800 text-blue-700 dark:text-blue-200 hover:from-blue-100 hover:to-blue-100 dark:hover:from-blue-800 dark:hover:to-blue-700 border border-blue-200 dark:border-blue-700 transition-all disabled:opacity-50 font-semibold flex-shrink-0 shadow-sm hover:shadow-md hover:scale-105"
             >
               {action.label}
             </button>
@@ -294,30 +334,30 @@ export default function Home() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 bg-gradient-to-b from-white to-slate-50/50 dark:from-slate-800 dark:to-slate-800/50 transition-colors duration-300">
           {messages.map((msg, i) => (
-            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} ${msg.role === "user" ? "msg-user" : "msg-assistant"}`}>
+            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} ${msg.role === "user" ? "msg-user" : "msg-assistant"} animate-fadeIn`}>
               <div className={`max-w-[82%] ${msg.role === "user" ? "" : "w-full"}`}>
                 {/* Bubble */}
-                <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                <div className={`rounded-2xl px-5 py-3.5 text-sm leading-relaxed font-medium transition-all ${
                   msg.role === "user"
-                    ? "bg-blue-600 text-white rounded-br-sm"
-                    : "bg-gray-50 text-gray-800 rounded-bl-sm border border-gray-100"
+                    ? "bg-blue-600 dark:bg-blue-700 text-white rounded-br-sm shadow-lg hover:shadow-xl"
+                    : "bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-bl-sm border border-slate-200 dark:border-slate-600 shadow-sm hover:shadow-md"
                 }`}>
                   {formatContent(msg.content)}
                 </div>
 
                 {/* Source tags + latency */}
                 {msg.role === "assistant" && (msg.sources?.length || msg.latency) ? (
-                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
                     {msg.sources?.map(src => {
                       const { label, cls } = sourceLabel(src);
                       return (
-                        <span key={src} className={`source-tag ${cls}`}>{label}</span>
+                        <span key={src} className={`source-tag text-xs px-2.5 py-1 rounded-md font-semibold transition-all ${cls}`}>{label}</span>
                       );
                     })}
                     {msg.latency && (
-                      <span className="text-[10px] text-gray-400">{msg.latency}ms</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{msg.latency}ms</span>
                     )}
                   </div>
                 ) : null}
@@ -327,50 +367,50 @@ export default function Home() {
 
           {showProjects && (
             <div className="msg-assistant">
-              <div className="w-full rounded-2xl rounded-bl-sm border border-gray-100 bg-gray-50 px-4 py-3">
-                <div className="flex items-center justify-between gap-3 mb-3">
-                  <p className="text-sm font-semibold text-gray-900">GitHub projects</p>
-                  <span className="text-[10px] text-gray-400">{repos.length} repos</span>
+              <div className="w-full rounded-2xl rounded-bl-sm border border-slate-200 dark:border-slate-600 bg-gradient-to-br from-slate-50 to-slate-50 dark:from-slate-700 dark:to-slate-700/50 px-5 py-4 shadow-sm transition-colors duration-300">
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <p className="text-base font-bold text-slate-900 dark:text-white">GitHub Projects</p>
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-600 px-3 py-1 rounded-full">{repos.length} repos</span>
                 </div>
 
                 {repos.length === 0 ? (
-                  <p className="text-sm text-gray-600">
-                    No GitHub repos are loaded yet. Run <span className="font-mono">python scripts/fetch_github.py</span>.
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                    No GitHub repos loaded yet. Run <span className="font-mono bg-slate-100 dark:bg-slate-600 px-2 py-1 rounded text-slate-800 dark:text-slate-200 font-semibold">python scripts/fetch_github.py</span>
                   </p>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {repos.map((repo, index) => {
                       const isOpen = expandedRepo === repo.name;
                       return (
-                        <div key={repo.name} className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+                        <div key={repo.name} className="rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 overflow-hidden hover:border-blue-300 dark:hover:border-blue-600 transition-all shadow-sm hover:shadow-md">
                           <button
                             onClick={() => toggleRepo(repo.name)}
-                            className="w-full flex items-center justify-between gap-3 px-3 py-2 text-left hover:bg-blue-50 transition-colors"
+                            className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-blue-50/30 dark:hover:bg-slate-700/50 transition-all"
                           >
-                            <span className="flex items-center gap-2 min-w-0">
-                              <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-[11px] font-bold flex items-center justify-center flex-shrink-0">
+                            <span className="flex items-center gap-3 min-w-0">
+                              <span className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 shadow-md">
                                 {index + 1}
                               </span>
-                              <span className="text-sm font-semibold text-gray-800 truncate">{repo.name}</span>
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 flex-shrink-0">
+                              <span className="text-sm font-bold text-slate-900 dark:text-white truncate">{repo.name}</span>
+                              <span className="text-xs px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold flex-shrink-0 border border-blue-100 dark:border-blue-800">
                                 {repo.primary_language}
                               </span>
                             </span>
-                            <span className="text-gray-400 text-sm">{isOpen ? "−" : "+"}</span>
+                            <span className="text-slate-400 dark:text-slate-500 text-lg font-light">{isOpen ? "−" : "+"}</span>
                           </button>
 
                           {isOpen && (
-                            <div className="px-3 pb-3 pt-1 border-t border-gray-100">
-                              <p className="text-xs text-gray-700 leading-relaxed">
+                            <div className="px-4 pb-4 pt-2 border-t border-slate-100 dark:border-slate-600 bg-gradient-to-b from-blue-50/20 dark:from-slate-700/50 to-transparent transition-colors duration-300">
+                              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
                                 {repo.description || repo.summary || "No README summary available yet."}
                               </p>
 
                               {repo.languages.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 mt-2">
+                                <div className="flex flex-wrap gap-2 mt-3">
                                   {repo.languages.slice(0, 10).map(language => (
                                     <span
                                       key={language}
-                                      className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100"
+                                      className="text-xs px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
                                     >
                                       {language}
                                     </span>
@@ -379,11 +419,11 @@ export default function Home() {
                               )}
 
                               {repo.commits.length > 0 && (
-                                <div className="mt-2">
-                                  <p className="text-[10px] font-semibold text-gray-500 mb-1">Recent commits</p>
-                                  <ul className="space-y-1">
+                                <div className="mt-3">
+                                  <p className="text-xs font-bold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">Recent Commits</p>
+                                  <ul className="space-y-1.5">
                                     {repo.commits.slice(0, 3).map(commit => (
-                                      <li key={commit} className="text-[11px] text-gray-500 truncate">
+                                      <li key={commit} className="text-xs text-slate-600 dark:text-slate-400 truncate font-medium bg-white/50 dark:bg-slate-700/50 px-2 py-1 rounded">
                                         {commit}
                                       </li>
                                     ))}
@@ -396,9 +436,9 @@ export default function Home() {
                                   href={repo.url}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="inline-flex mt-2 text-[11px] text-blue-600 hover:text-blue-700 font-semibold"
+                                  className="inline-flex mt-3 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-bold bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all"
                                 >
-                                  Open GitHub repo
+                                  ↗ Open GitHub Repo
                                 </a>
                               )}
                             </div>
@@ -415,11 +455,11 @@ export default function Home() {
           {/* Typing indicator */}
           {loading && (
             <div className="flex justify-start msg-assistant">
-              <div className="bg-gray-50 border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3">
-                <div className="flex gap-1.5 items-center h-4">
-                  <div className="typing-dot w-2 h-2 rounded-full bg-gray-400" />
-                  <div className="typing-dot w-2 h-2 rounded-full bg-gray-400" />
-                  <div className="typing-dot w-2 h-2 rounded-full bg-gray-400" />
+              <div className="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl rounded-bl-sm px-5 py-3.5 shadow-sm transition-colors duration-300">
+                <div className="flex gap-2 items-center h-5">
+                  <div className="typing-dot w-2.5 h-2.5 rounded-full bg-slate-400 dark:bg-slate-500 animate-pulse" />
+                  <div className="typing-dot w-2.5 h-2.5 rounded-full bg-slate-400 dark:bg-slate-500 animate-pulse" style={{ animationDelay: "0.2s" }} />
+                  <div className="typing-dot w-2.5 h-2.5 rounded-full bg-slate-400 dark:bg-slate-500 animate-pulse" style={{ animationDelay: "0.4s" }} />
                 </div>
               </div>
             </div>
@@ -430,14 +470,14 @@ export default function Home() {
 
         {/* Booking widget */}
         {showBooking && (
-          <div className="border-t border-blue-100 bg-gradient-to-b from-blue-50 to-white px-4 pt-3 pb-2 flex-shrink-0">
+          <div className="border-t border-blue-100 dark:border-blue-900 bg-gradient-to-b from-blue-50/60 dark:from-blue-900/20 to-white dark:to-slate-800 px-5 pt-4 pb-3 flex-shrink-0 shadow-lg transition-colors duration-300">
             <BookingWidget onClose={() => setShowBooking(false)} />
           </div>
         )}
 
         {/* Voice call widget */}
         {showVoiceCall && (
-          <div className="border-t border-indigo-100 bg-gradient-to-b from-indigo-50 to-white px-4 pt-3 pb-2 flex-shrink-0">
+          <div className="border-t border-purple-100 dark:border-purple-900 bg-gradient-to-b from-purple-50/60 dark:from-purple-900/20 to-white dark:to-slate-800 px-5 pt-4 pb-3 flex-shrink-0 shadow-lg transition-colors duration-300">
             <VoiceCallWidget
               initialConfig={voiceConfig}
               onClose={() => setShowVoiceCall(false)}
@@ -446,10 +486,10 @@ export default function Home() {
         )}
 
         {/* Input area */}
-        <div className="border-t border-gray-100 p-3 flex gap-2 items-end flex-shrink-0 rounded-b-2xl">
+        <div className="border-t border-slate-100 dark:border-slate-700 p-4 flex gap-3 items-end flex-shrink-0 bg-gradient-to-t from-slate-50/50 dark:from-slate-700/50 to-white dark:to-slate-800 transition-colors duration-300">
           <input
             ref={inputRef}
-            className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent placeholder:text-gray-400 transition-all resize-none"
+            className="flex-1 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 dark:focus:ring-blue-400 focus:border-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all resize-none shadow-sm font-medium bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -460,10 +500,10 @@ export default function Home() {
           <button
             onClick={() => send()}
             disabled={loading || !input.trim()}
-            className="flex-shrink-0 w-10 h-10 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl flex items-center justify-center transition-colors"
+            className="flex-shrink-0 w-11 h-11 bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 hover:from-blue-700 hover:to-blue-800 dark:hover:from-blue-600 dark:hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl flex items-center justify-center transition-all shadow-lg hover:shadow-xl hover:scale-105"
             aria-label="Send message"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
           </button>
